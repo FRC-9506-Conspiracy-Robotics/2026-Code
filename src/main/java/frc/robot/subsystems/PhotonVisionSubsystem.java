@@ -7,11 +7,12 @@ import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.Commands;
 
-public class VisionSubsystem extends SubsystemBase {
+public class PhotonVisionSubsystem extends SubsystemBase {
     private final PhotonCamera camera = new PhotonCamera("photonvision");
 
-    public VisionSubsystem() {}
+    public PhotonVisionSubsystem() {}
 
     public Optional<PhotonTrackedTarget> getBestTarget() {
         PhotonPipelineResult result = camera.getLatestResult();
@@ -21,9 +22,5 @@ public class VisionSubsystem extends SubsystemBase {
         } else {
             return Optional.empty();
         }
-    }
-    
-    public boolean hasTargets() {
-        return camera.getLatestResult().hasTargets();
     }
 }

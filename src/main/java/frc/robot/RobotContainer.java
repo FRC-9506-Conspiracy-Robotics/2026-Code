@@ -17,8 +17,11 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.AnglerSubsytem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.subsystems.PhotonVisionSubsystem;
+import frc.robot.subsystems.PivotSubsystem;
+import frc.robot.subsystems.LimelightVisionSubsystem;
 
 public class RobotContainer {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -36,7 +39,11 @@ public class RobotContainer {
     private final CommandXboxController joystick = new CommandXboxController(0);
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-    public final VisionSubsystem vision = new VisionSubsystem();
+
+    private final PhotonVisionSubsystem photon = new PhotonVisionSubsystem();
+    private final LimelightVisionSubsystem limeLight = new LimelightVisionSubsystem(0);
+    private final PivotSubsystem pivot = new PivotSubsystem();
+    private final AnglerSubsytem angler = new AnglerSubsytem();
 
     public RobotContainer() {
         configureBindings();
