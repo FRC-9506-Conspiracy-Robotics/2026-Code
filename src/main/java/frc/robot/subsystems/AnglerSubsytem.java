@@ -40,7 +40,7 @@ public class AnglerSubsytem extends SubsystemBase {
         .withClosedLoopRampRate(AnglerConstants.anglerClosedRampRate)
         .withOpenLoopRampRate(AnglerConstants.anglerOpenRampRate);
     
-    // could have a MechanismPositionConfig() added if wanted
+    // could have a MechanismPositionConfig() added if wanted for predetermided states
     
     private final SmartMotorController motor = new TalonFXSWrapper(rawAnglerMotor, DCMotor.getFalcon500(1), anglerMotorConfig);
     private final ArmConfig armConfig = new ArmConfig(motor)
