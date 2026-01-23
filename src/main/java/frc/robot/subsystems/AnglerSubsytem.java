@@ -19,9 +19,8 @@ import frc.robot.Constants.AnglerConstants;
 
 public class AnglerSubsytem extends SubsystemBase { 
     private final TalonFXS anglerMotor = new TalonFXS(AnglerConstants.AnglerMotorID);
-    private final TalonFXConfigurator anglerConifig = new TalonFXConfigurator(AnglerConstants.AnglerMotorID);
+    private final TalonFXConfiguration anglerConifig = new TalonFXConfiguration();
 
     public AnglerSubsytem() {
-        anglerMotor.getConfigurator().apply(anglerConifig);
     }
 }

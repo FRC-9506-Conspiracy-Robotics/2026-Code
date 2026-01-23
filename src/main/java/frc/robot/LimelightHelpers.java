@@ -16,7 +16,6 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
-
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -113,7 +112,7 @@ public class LimelightHelpers {
 
         @JsonProperty("txp")
         public double tx_pixels;
-
+        
         @JsonProperty("typ")
         public double ty_pixels;
 

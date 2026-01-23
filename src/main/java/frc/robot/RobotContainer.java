@@ -10,6 +10,10 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -23,6 +27,10 @@ import frc.robot.subsystems.LimelightVisionSubsystem;
 import frc.robot.subsystems.PivotSubsystem;
 import frc.robot.subsystems.AnglerSubsytem;
 import frc.robot.subsystems.ShooterSubsystem;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 public class RobotContainer {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -34,6 +42,8 @@ public class RobotContainer {
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+
+    private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
@@ -48,7 +58,37 @@ public class RobotContainer {
     private final ShooterSubsystem shooter = new ShooterSubsystem();
 
     public RobotContainer() {
+
         configureBindings();
+        RobotConfig config;
+        try {
+            config = RobotConfig.fromGUISettings();
+        } catch (Exception ex) {
+            DriverStation.reportError(
+                "Failed to load pathplanner config and configure autobuilder", 
+                ex.getStackTrace());
+                return;
+        }
+        
+        AutoBuilder.configure(
+            () -> this.drivetrain.getState().Pose,
+            this.drivetrain::resetPose,
+            () -> this.drivetrain.getState().Speeds,
+
+            (speeds, feedfowards) -> this.drivetrain.setControl(
+                m_pathApplyRobotSpeeds.withSpeeds(ChassisSpeeds.discretize(speeds, 0.020))
+                .withWheelForceFeedforwardsX(feedfowards.robotRelativeForcesXNewtons())
+                .withWheelForceFeedforwardsY(feedfowards.robotRelativeForcesYNewtons())
+            ),
+            new PPHolonomicDriveController(
+                new PIDConstants(10, 0 ,0),
+                new PIDConstants(7,0 ,0)),
+                config,
+
+                () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
+                this.drivetrain
+        );
+        
     }
 
     private void configureBindings() {
@@ -82,13 +122,15 @@ public class RobotContainer {
         joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
         joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
-        // reset the field-centric heading on left bumper press
-        joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        // reset the field-centric heading on left stick hold
+        joystick.leftStick().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }
 
     public Command getAutonomousCommand() {
+        
+
         return Commands.print("No autonomous command configured");
     }
 }

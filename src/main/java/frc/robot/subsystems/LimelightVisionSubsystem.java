@@ -61,10 +61,12 @@ public class LimelightVisionSubsystem extends SubsystemBase {
         Double ty = getTy();
         Angle angle = Degrees.of(ty);
 
-        angler.setAnglerPositionCommand(angle);
+        //angler.setAnglerPositionCommand(angle);
     }
 
     public Command setAnglerToTagCommand() {
         return runOnce(() -> setAnglerToTag());
     }
+
 }
+
