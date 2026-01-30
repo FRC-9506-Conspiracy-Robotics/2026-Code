@@ -13,9 +13,12 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -28,11 +31,15 @@ import frc.robot.subsystems.PivotSubsystem;
 import frc.robot.subsystems.AnglerSubsytem;
 import frc.robot.subsystems.ShooterSubsystem;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 public class RobotContainer {
+
+    private SendableChooser<Command> autoChooser;
+
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
@@ -81,15 +88,20 @@ public class RobotContainer {
                 .withWheelForceFeedforwardsY(feedfowards.robotRelativeForcesYNewtons())
             ),
             new PPHolonomicDriveController(
-                new PIDConstants(10, 0 ,0),
-                new PIDConstants(7,0 ,0)),
+                new PIDConstants(2.5, 1 ,0),
+                new PIDConstants(1,0 ,0)),
                 config,
 
                 () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
                 this.drivetrain
-        );
-        
-    }
+
+            );
+
+            this.autoChooser = AutoBuilder.buildAutoChooser("left to center");
+
+            SmartDashboard.putData(
+                "Auto Chooser", autoChooser);
+        }
 
     private void configureBindings() {
         // Note that X is defined as forward according to WPILib convention,
@@ -102,6 +114,7 @@ public class RobotContainer {
                     .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
+
 
         // Idle while the robot is disabled. This ensures the configured
         // neutral mode is applied to the drive motors while disabled.
@@ -128,9 +141,12 @@ public class RobotContainer {
         drivetrain.registerTelemetry(logger::telemeterize);
     }
 
-    public Command getAutonomousCommand() {
-        
+   
 
-        return Commands.print("No autonomous command configured");
+    public Command getAutonomousCommand() {
+        return new PathPlannerAuto("left to center");
+
+        //return autoChooser.getSelected();
+        //return Commands.print("No autonomous command configured")
     }
 }
