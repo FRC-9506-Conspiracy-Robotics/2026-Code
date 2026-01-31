@@ -9,6 +9,12 @@
           "data": {
             "pathName": "Left start aim center"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Align Apriltags"
+          }
         }
       ]
     }

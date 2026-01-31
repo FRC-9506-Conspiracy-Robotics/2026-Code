@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-
+import frc.robot.commands.AlignAprilTags;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.PhotonVisionSubsystem;
@@ -31,6 +31,7 @@ import frc.robot.subsystems.PivotSubsystem;
 import frc.robot.subsystems.AnglerSubsytem;
 import frc.robot.subsystems.ShooterSubsystem;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
@@ -58,13 +59,14 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    private final PhotonVisionSubsystem photon = new PhotonVisionSubsystem();
     private final LimelightVisionSubsystem limeLight = new LimelightVisionSubsystem(0);
     private final PivotSubsystem pivot = new PivotSubsystem();
     private final AnglerSubsytem angler = new AnglerSubsytem();
     private final ShooterSubsystem shooter = new ShooterSubsystem();
 
     public RobotContainer() {
+
+        NamedCommands.registerCommand("Align Apriltags", new AlignAprilTags(this.limeLight, this.drivetrain));
 
         configureBindings();
         RobotConfig config;
