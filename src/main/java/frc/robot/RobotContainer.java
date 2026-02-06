@@ -6,6 +6,8 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.stream.Stream;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
@@ -99,11 +101,25 @@ public class RobotContainer {
 
             );
 
-            this.autoChooser = AutoBuilder.buildAutoChooser("left to center");
+        //this.autoChooser = AutoBuilder.buildAutoChooser("left to center");
 
+        boolean isCompetition = true;
+
+        // Build an auto chooser. This will use Commands.none() as the default option.
+        // As an example, this will only show autos that start with "left" while at
+        // competition as defined by the programmer
+
+    
+        this.autoChooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
+            (stream) -> isCompetition
+            ? stream.filter(auto -> auto.getName().startsWith("left to center"))
+            : stream
+        );
+        
             SmartDashboard.putData(
                 "Auto Chooser", autoChooser);
-        }
+
+        };
 
     private void configureBindings() {
         // Note that X is defined as forward according to WPILib convention,
@@ -146,9 +162,9 @@ public class RobotContainer {
    
 
     public Command getAutonomousCommand() {
-        return new PathPlannerAuto("left to center");
+        //return new PathPlannerAuto("left to center");
 
-        //return autoChooser.getSelected();
+        return autoChooser.getSelected();
         //return Commands.print("No autonomous command configured")
     }
 }

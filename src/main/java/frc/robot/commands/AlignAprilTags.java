@@ -65,11 +65,6 @@ public class AlignAprilTags extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    LimelightHelpers.SetRobotOrientation(
-      "", 
-      this.swerdrive.getRotation3d().getZ(), 
-      0, 0, 0, 0, 0);
-    PoseEstimate currentPose = LimelightHelpers.getBotPoseEstimate_wpiBlue("");
     PoseEstimate mt2Pose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("");
     System.out.printf("Robot X is: %f\n", mt2Pose.pose.getMeasureX().in(Units.Meters));
     System.out.printf("Robot Y is: %f\n", mt2Pose.pose.getMeasureY().in(Units.Meters));
