@@ -43,6 +43,8 @@ public class RobotContainer {
 
     private SendableChooser<Command> autoChooser;
 
+    
+
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
@@ -65,6 +67,8 @@ public class RobotContainer {
     private final PivotSubsystem pivot = new PivotSubsystem();
     private final AnglerSubsytem angler = new AnglerSubsytem();
     private final ShooterSubsystem shooter = new ShooterSubsystem();
+
+    private AlignAprilTags alignAprilTags = new AlignAprilTags(limeLight, drivetrain);
 
     public RobotContainer() {
 
@@ -145,6 +149,7 @@ public class RobotContainer {
         joystick.b().whileTrue(drivetrain.applyRequest(() ->
             point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
         ));
+        joystick.x().whileTrue(alignAprilTags);
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.

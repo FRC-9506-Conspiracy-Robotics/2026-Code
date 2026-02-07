@@ -10,6 +10,10 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.LimelightHelpers.PoseEstimate;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
+import edu.wpi.first.units.DistanceUnit;
+import edu.wpi.first.units.Units;
+import static edu.wpi.first.units.Units.*;
+
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
   private CommandSwerveDrivetrain swerdrive;
@@ -26,9 +30,9 @@ public class Robot extends TimedRobot {
 
     LimelightHelpers.SetRobotOrientation(
       "", 
-      this.swerdrive.getRotation3d().getZ(), 
+      this.swerdrive.getRotation3d().getZ() * (180 / Math.PI), 
       0, 0, 0, 0, 0);
-
+    
     CommandScheduler.getInstance().run(); 
   }
 

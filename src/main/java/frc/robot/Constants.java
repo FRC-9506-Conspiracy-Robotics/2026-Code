@@ -18,4 +18,17 @@ public final class Constants {
         public static final int leaderShooterMotorID = 3;
         public static final int followerShooterMotorID = 4;
     }
+
+    public static class IntakeConstants {
+        public static final int deployMainID = 13;
+        public static final int deployFollowID = 14;
+        public static final int intakeID = 15;
+
+        public static final int deployGearRatio = 15;
+        public static final int intakeGearRatio = 2;
+    }
+
+    public static class HandoffConstants {
+        public static final int HandoffMotorID = 16;
+    }
 }
