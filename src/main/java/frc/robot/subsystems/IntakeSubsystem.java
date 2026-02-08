@@ -1,23 +1,63 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.drive.RobotDriveBase.MotorType;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeConstants;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkMax;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
 public class IntakeSubsystem extends SubsystemBase {
-  /** Creates a new IntakeSubsystem. */
-  public IntakeSubsystem() {
+  private final TalonFX intakeMotor = new TalonFX(IntakeConstants.intakeID);
+  private final SparkMax deployLeaderMotor = new SparkMax(IntakeConstants.deployLeaderID, MotorType.kBrushless);
+  private final SparkMax deployFollowerMotor = new SparkMax(IntakeConstants.deployFollowerID, MotorType.kBrushless);
 
-    private final SparkMax deployGearRatio = new SparkMax(CanId.elbowMotorCan, MotorType.kBrushless);
+  public IntakeSubsystem() {
+    TalonFXConfiguration intakeConfig = new TalonFXConfiguration();
+    intakeConfig
+      .withMotorOutput(
+        new MotorOutputConfigs()
+          .withNeutralMode(NeutralModeValue.Coast)
+      )
+      .withCurrentLimits(
+        new CurrentLimitsConfigs()
+          .withStatorCurrentLimit(IntakeConstants.intakeCurrentLimit)
+          .withSupplyCurrentLimitEnable(true)
+      );
+    intakeMotor.getConfigurator().apply(intakeConfig);
+
+    SparkMaxConfig deployLeaderConfig = new SparkMaxConfig();
+    deployLeaderConfig
+      .idleMode(IdleMode.kBrake)
+      .smartCurrentLimit(IntakeConstants.deployCurrentLimit);
+
+    deployLeaderMotor.configure(deployLeaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+    SparkMaxConfig deployFollowerConfig = new SparkMaxConfig();
+    deployFollowerConfig
+      .idleMode(IdleMode.kBrake)
+      .follow(deployLeaderMotor, true);
+
+    deployFollowerMotor.configure(deployFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+  }
+
+  public Command setIntakeSpeedCommand() {
+      return runOnce(() -> intakeMotor.set(1));
+  }
+
+  public Command stopIntakeCommand() {
+      return runOnce(() -> intakeMotor.set(0));
   }
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
   }
 }

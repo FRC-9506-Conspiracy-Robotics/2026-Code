@@ -20,12 +20,15 @@ public final class Constants {
     }
 
     public static class IntakeConstants {
-        public static final int deployMainID = 13;
-        public static final int deployFollowID = 14;
+        public static final int deployLeaderID = 13;
+        public static final int deployFollowerID = 14;
         public static final int intakeID = 15;
 
         public static final int deployGearRatio = 15;
         public static final int intakeGearRatio = 2;
+
+        public static final int deployCurrentLimit = 50;
+        public static final double intakeCurrentLimit = 120;
     }
 
     public static class HandoffConstants {
