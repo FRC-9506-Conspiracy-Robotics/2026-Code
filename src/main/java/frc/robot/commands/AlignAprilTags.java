@@ -13,8 +13,6 @@ import edu.wpi.first.math.Num;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.units.measure.DistanceUnit;
-import edu.wpi.first.units.measure.Units;
 import static edu.wpi.first.units.Units.*;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers;
@@ -76,8 +74,8 @@ public class AlignAprilTags extends Command {
       PoseEstimate currentPos = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("");
       double minimum_distance = 99999;
       for (int i = 0; i < target_points.length; i++) {
-        double posX = currentPos.pose.getMeasureX().in(Units.Meters);
-        double posY = currentPos.pose.getMeasureY().in(Units.Meters);
+        double posX = currentPos.pose.getMeasureX().in(Meters);
+        double posY = currentPos.pose.getMeasureY().in(Meters);
         double xOffset = posX - target_points[i][0];
         double yOffset = posY - target_points[i][1];
         double distance_to_target = Math.sqrt((xOffset * xOffset) + (yOffset * yOffset));
@@ -112,8 +110,8 @@ public class AlignAprilTags extends Command {
 
     PoseEstimate mt2Pose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("");
     double robotAngle = mt2Pose.pose.getRotation().getDegrees();
-    double xDisplacement = mt2Pose.pose.getMeasureX().in(Units.Meters);
-    double yDisplacement = mt2Pose.pose.getMeasureY().in(Units.Meters);
+    double xDisplacement = mt2Pose.pose.getMeasureX().in(Meters);
+    double yDisplacement = mt2Pose.pose.getMeasureY().in(Meters);
     // System.out.printf("Robot Yaw is: %f\n", robotAngle);
 
     double xMeters_from_zone = target_points[closest_target_point][0] - xDisplacement;
