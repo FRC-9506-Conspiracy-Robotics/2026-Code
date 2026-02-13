@@ -1,5 +1,8 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -10,7 +13,9 @@ import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.ResetMode;
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.PersistMode;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -25,6 +30,9 @@ public class IntakeSubsystem extends SubsystemBase {
   private final TalonFX intakeMotor = new TalonFX(IntakeConstants.intakeID);
   private final SparkMax deployLeaderMotor = new SparkMax(IntakeConstants.deployLeaderID, MotorType.kBrushless);
   private final SparkMax deployFollowerMotor = new SparkMax(IntakeConstants.deployFollowerID, MotorType.kBrushless);
+  private final RelativeEncoder deployEncoder = deployLeaderMotor.getEncoder();
+
+  final DoublePublisher deployInfo;
 
   public IntakeSubsystem() {
     TalonFXConfiguration intakeConfig = new TalonFXConfiguration();
@@ -53,6 +61,10 @@ public class IntakeSubsystem extends SubsystemBase {
       .follow(deployLeaderMotor, true);
 
     deployFollowerMotor.configure(deployFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+    NetworkTableInstance inst = NetworkTableInstance.getDefault();
+    NetworkTable table = inst.getTable("datatable");
+    this.deployInfo = table.getDoubleTopic("encoder-info/deploy-motor").publish();
   }
 
   public Command setIntakeSpeedCommand() {
@@ -72,5 +84,6 @@ public class IntakeSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    this.deployInfo.set(deployEncoder.getPosition());
   }
 }
