@@ -4,14 +4,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeConstants;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.ResetMode;
+
 import com.revrobotics.spark.SparkMax;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.PersistMode;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
@@ -25,7 +26,7 @@ public class IntakeSubsystem extends SubsystemBase {
     intakeConfig
       .withMotorOutput(
         new MotorOutputConfigs()
-          .withNeutralMode(NeutralModeValue.Coast)
+          .withNeutralMode(NeutralModeValue.Brake)
       )
       .withCurrentLimits(
         new CurrentLimitsConfigs()
@@ -39,7 +40,7 @@ public class IntakeSubsystem extends SubsystemBase {
       .idleMode(IdleMode.kBrake)
       .smartCurrentLimit(IntakeConstants.deployCurrentLimit);
 
-    deployLeaderMotor.configure(deployLeaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    deployLeaderMotor.configure(deployLeaderConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
 
     SparkMaxConfig deployFollowerConfig = new SparkMaxConfig();
     deployFollowerConfig
@@ -55,6 +56,13 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public Command stopIntakeCommand() {
       return runOnce(() -> intakeMotor.set(0));
+  }
+
+  public Command startIntakeCommand() {
+    return startEnd(
+      () -> intakeMotor.set(-1),
+      () -> intakeMotor.set(0)
+      );
   }
 
   @Override

@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.AlignAprilTags;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.PhotonVisionSubsystem;
 import frc.robot.subsystems.LimelightVisionSubsystem;
 import frc.robot.subsystems.PivotSubsystem;
@@ -69,6 +70,7 @@ public class RobotContainer {
     private final ShooterSubsystem shooter = new ShooterSubsystem();
 
     private AlignAprilTags alignAprilTags = new AlignAprilTags(limeLight, drivetrain);
+    private IntakeSubsystem intake = new IntakeSubsystem();
 
     public RobotContainer() {
 
@@ -149,7 +151,7 @@ public class RobotContainer {
         joystick.b().whileTrue(drivetrain.applyRequest(() ->
             point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
         ));
-        joystick.x().whileTrue(alignAprilTags);
+        joystick.x().whileTrue(intake.startIntakeCommand());
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
