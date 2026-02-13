@@ -8,6 +8,8 @@ import edu.wpi.first.math.controller.*;
 public final class Constants {
     public static class PivotConstants {
         public static final int PivotMotorID = 1;
+
+        public static final int pivotCurrentLimit = 50;
     }
 
     public static class AnglerConstants {
@@ -28,7 +30,7 @@ public final class Constants {
         public static final int intakeGearRatio = 2;
 
         public static final int deployCurrentLimit = 50;
-        public static final double intakeCurrentLimit = 120;
+        public static final int intakeCurrentLimit = 120;
     }
 
     public static class HandoffConstants {
