@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.Num;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -26,8 +27,12 @@ public class IntakeSubsystem extends SubsystemBase {
   private final SparkMax deployLeaderMotor = new SparkMax(IntakeConstants.deployLeaderID, MotorType.kBrushless);
   private final SparkMax deployFollowerMotor = new SparkMax(IntakeConstants.deployFollowerID, MotorType.kBrushless);
   private final RelativeEncoder deployEncoder = deployLeaderMotor.getEncoder();
+  private final double deployVelocity = deployEncoder.getVelocity();
 
   final DoublePublisher deployInfo;
+
+  public static boolean deployed = false;
+  public static boolean deploying = false;
 
   public IntakeSubsystem() {
     TalonFXConfiguration intakeConfig = new TalonFXConfiguration();
@@ -63,12 +68,62 @@ public class IntakeSubsystem extends SubsystemBase {
     this.deployInfo = table.getDoubleTopic("encoder-info/deploy-motor").publish();
   }
 
-  public Command setIntakeSpeedCommand() {
-      return runOnce(() -> intakeMotor.set(1));
-  }
-
-  public Command stopIntakeCommand() {
-      return runOnce(() -> intakeMotor.set(0));
+  public void deployIntake() { // Deploys AND retracts intake
+    if ((deploying == false) && (deployed == false)) { // Runs if not deploying or retracting intake and the intake is not deployed yet
+      deploying = true;
+      double adjustedSpeed = 0.00; // Will increase to desired speed based on position
+      while (deployed == false) { // Runs until we are fully extended
+        if (deployVelocity > (-21 - deployEncoder.getPosition())) { //
+          adjustedSpeed += -0.01;
+          deployLeaderMotor.set(adjustedSpeed); // Adjusts speed if it is below target velocity
+        }
+        else if (deployVelocity < (-21 - deployEncoder.getPosition())) {
+          adjustedSpeed += 0.01;
+          deployLeaderMotor.set(adjustedSpeed); // Adjusts speed if it is above target velocity
+        }
+        if (deployEncoder.getPosition() <= -13) { // Runs when extended
+          deployLeaderMotor.set(0);
+          deployed = true;
+          deploying = false;
+          intakeMotor.set(-1);
+        }
+        try {
+          Thread.sleep(40); // Waits 0.04 seconds before repeating the while loop
+        } catch (InterruptedException e) {
+          deployLeaderMotor.set(0);
+          deploying = false;
+          System.out.print("Deploying intake was interrupted, stopped deploying.");
+          Thread.currentThread().interrupt(); 
+        }
+      } 
+    } else if ((deploying == false) && (deployed == true)) { // Runs if not deploying or retracting intake and if the intake is already deployed
+      deploying = true;
+      double adjustedSpeed = 0.00; // Increases to desired speed based on position.
+      intakeMotor.set(0); // Turns off intake before retracting
+      while (deployed == true) { // Runs until we are fully retracted
+        if (deployVelocity < (7 - deployEncoder.getPosition())) {
+          adjustedSpeed += 0.01;
+          deployLeaderMotor.set(adjustedSpeed); // Adjusts speed if it is below target velocity
+        }
+        else if (deployVelocity > (7 + deployEncoder.getPosition())) {
+          adjustedSpeed += -0.01;
+          deployLeaderMotor.set(adjustedSpeed); // Adjusts speed if it is above target velocity
+        }
+        if (deployEncoder.getPosition() >= -1) { // Runs when retracted
+          deployLeaderMotor.set(0);
+          deployed = false;
+          deploying = false;
+        }
+        try {
+          Thread.sleep(40); // Waits 0.04 seconds before repeating the while loop
+        } catch (InterruptedException e) {
+          deployLeaderMotor.set(0);
+          deploying = false;
+          System.out.print("Deploying intake was interrupted, stopped deploying.");
+          Thread.currentThread().interrupt(); 
+        }
+      }
+    }
   }
 
   public Command startIntakeCommand() {
