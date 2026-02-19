@@ -33,6 +33,13 @@ public final class Constants {
         public static final int intakeCurrentLimit = 120;
     }
 
+    public static class TurretConstants {
+        public static final int neckMotorID = 17; 
+        public static final int anglerMotorID = 18;
+        public static final int shooterLeadID = 19;
+        public static final int shooterFollowerID = 20;
+    }
+
     public static class HandoffConstants {
         public static final int HandoffMotorID = 16;
     }
