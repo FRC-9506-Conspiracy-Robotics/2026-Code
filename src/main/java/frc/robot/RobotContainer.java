@@ -27,6 +27,8 @@ import frc.robot.subsystems.LimelightVisionSubsystem;
 import frc.robot.subsystems.PivotSubsystem;
 import frc.robot.subsystems.AnglerSubsytem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.TurretSubsystem;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.config.PIDConstants;
@@ -58,6 +60,7 @@ public class RobotContainer {
     private final PivotSubsystem pivot = new PivotSubsystem();
     private final AnglerSubsytem angler = new AnglerSubsytem();
     private final ShooterSubsystem shooter = new ShooterSubsystem();
+    private final TurretSubsystem turret = new TurretSubsystem();
 
     private AlignAprilTags alignAprilTags = new AlignAprilTags(limeLight, drivetrain);
     private IntakeSubsystem intake = new IntakeSubsystem();

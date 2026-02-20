@@ -38,6 +38,8 @@ public final class Constants {
         public static final int anglerMotorID = 18;
         public static final int shooterLeadID = 19;
         public static final int shooterFollowerID = 20;
+
+        public static final double neckGearRatio = 37.5;
     }
 
     public static class HandoffConstants {

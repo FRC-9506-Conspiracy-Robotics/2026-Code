@@ -4,8 +4,13 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.TurretConstants;
 
@@ -16,14 +21,23 @@ public class TurretSubsystem extends SubsystemBase {
   public final TalonFX shooterLeaderMotor = new TalonFX(TurretConstants.shooterLeadID);
   public final TalonFX shooterFollowerMotor = new TalonFX(TurretConstants.shooterFollowerID);
 
+  private final StatusSignal<Angle> neckPositionSignal = neckMotor.getPosition();
+
+  final DoublePublisher rotateInfo;
+  
+
   /** Creates a new TurretSubsystem. */
   public TurretSubsystem() {
+    NetworkTableInstance inst = NetworkTableInstance.getDefault();
+    NetworkTable table = inst.getTable("datatable");
+    this.rotateInfo = table.getDoubleTopic("turret/rotate-angle").publish();
     // configure the shooterFollowerMotor to follow the leader
   }
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    this.rotateInfo.set(neckPositionSignal.getValueAsDouble());
+        // This method will be called once per scheduler run
 
 
   }

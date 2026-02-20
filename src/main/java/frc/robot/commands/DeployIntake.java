@@ -49,14 +49,15 @@ public class DeployIntake extends Command {
     } else {
       this.intake.intakeMotor.set(0.0);
     }
+    this.intake.deployLeaderMotor.set(0);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
     //Numbers will be changed
-    double deployPosition = -80;
-    double stowedPosition = 10;
+    double deployPosition = -9;
+    double stowedPosition = -0.5;
 
     if (this.intake.desiredPosition == this.intake.DEPLOYED) {
       return this.intake.deployEncoder.getPosition() < deployPosition;
