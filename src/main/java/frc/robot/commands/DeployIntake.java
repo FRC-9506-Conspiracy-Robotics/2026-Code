@@ -3,7 +3,6 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.commands;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.IntakeSubsystem;
 
@@ -45,7 +44,7 @@ public class DeployIntake extends Command {
   @Override
   public void end(boolean interrupted) {
     if (this.intake.desiredPosition == this.intake.DEPLOYED) {
-      this.intake.intakeMotor.set(-1.0);
+      this.intake.intakeMotor.set(-0.75);
     } else {
       this.intake.intakeMotor.set(0.0);
     }

@@ -30,7 +30,7 @@ public final class Constants {
         public static final int intakeGearRatio = 2;
 
         public static final int deployCurrentLimit = 50;
-        public static final int intakeCurrentLimit = 120;
+        public static final int intakeCurrentLimit = 20;
     }
 
     public static class TurretConstants {
@@ -38,8 +38,12 @@ public final class Constants {
         public static final int anglerMotorID = 18;
         public static final int shooterLeadID = 19;
         public static final int shooterFollowerID = 20;
+        public static final int shooterHandoffID = 21;
 
         public static final double neckGearRatio = 37.5;
+
+        public static final int neckCurrentLimit = 40;
+
     }
 
     public static class HandoffConstants {

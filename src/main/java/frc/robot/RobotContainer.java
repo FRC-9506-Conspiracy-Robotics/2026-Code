@@ -20,11 +20,13 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.AlignAprilTags;
+import frc.robot.commands.AutoTrackCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LimelightVisionSubsystem;
 import frc.robot.subsystems.PivotSubsystem;
+import frc.robot.subsystems.PositionData;
 import frc.robot.subsystems.AnglerSubsytem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
@@ -61,8 +63,10 @@ public class RobotContainer {
     private final AnglerSubsytem angler = new AnglerSubsytem();
     private final ShooterSubsystem shooter = new ShooterSubsystem();
     private final TurretSubsystem turret = new TurretSubsystem();
+    private final PositionData positionData = new PositionData(drivetrain);
 
     private AlignAprilTags alignAprilTags = new AlignAprilTags(limeLight, drivetrain);
+    private AutoTrackCommand autoTrackCommand = new AutoTrackCommand(turret, positionData);
     private IntakeSubsystem intake = new IntakeSubsystem();
 
     public RobotContainer() {
@@ -131,6 +135,8 @@ public class RobotContainer {
                     .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
+
+        this.turret.setDefaultCommand(autoTrackCommand);
 
 
         // Idle while the robot is disabled. This ensures the configured

@@ -23,7 +23,7 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 public class IntakeSubsystem extends SubsystemBase {
-  public final TalonFX intakeMotor = new TalonFX(IntakeConstants.intakeID);
+  public final TalonFX intakeMotor = new TalonFX(IntakeConstants.intakeID, "rio");
   public final SparkMax deployLeaderMotor = new SparkMax(IntakeConstants.deployLeaderID, MotorType.kBrushless);
   private final SparkMax deployFollowerMotor = new SparkMax(IntakeConstants.deployFollowerID, MotorType.kBrushless);
   public final RelativeEncoder deployEncoder = deployLeaderMotor.getEncoder();
