@@ -6,6 +6,9 @@ package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.Meters;
 
+import com.ctre.phoenix6.swerve.utility.WheelForceCalculator.Feedforwards;
+
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -14,6 +17,7 @@ import frc.robot.subsystems.PositionData;
 import frc.robot.subsystems.PositionData.Pose;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.LimelightHelpers;
+import frc.robot.Constants.TurretConstants;
 import frc.robot.LimelightHelpers.PoseEstimate;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
@@ -49,6 +53,7 @@ public class AutoTrackCommand extends Command {
     double robotAngle = p.yaw;
     double xFromHub = 4.83 - p.x;
     double yFromHub = 4 - p.y;
+    double distanceFromHub = Math.sqrt((xFromHub * xFromHub) + (yFromHub * yFromHub));
 
     double desiredRotation = ((Math.atan2(yFromHub, -xFromHub) * (180 / Math.PI)) + robotAngle - 90) / 360;
     double currentRotation = this.turret.getNeckPosition();
@@ -75,6 +80,13 @@ public class AutoTrackCommand extends Command {
 
   this.currentRotData.set(currentRotation);
   this.desiredRotData.set(desiredRotation);
+
+  SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(TurretConstants.shooterkS, TurretConstants.shooterkV, TurretConstants.shooterkA);
+  double volts = feedforward.calculate(distanceFromHub * 0.75, 0);
+  if (volts > 12) {
+    volts = 12;
+  }
+  this.turret.shooterLeaderMotor.setVoltage(volts);
 
   }
 

@@ -44,6 +44,9 @@ public final class Constants {
 
         public static final int neckCurrentLimit = 40;
 
+        public static final double shooterkV = 0.37844;
+        public static final double shooterkA = 0.021975;
+        public static final double shooterkS = 0.24189;
     }
 
     public static class HandoffConstants {
