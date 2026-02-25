@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.Meters;
 
 import com.ctre.phoenix6.swerve.utility.WheelForceCalculator.Feedforwards;
 
+import edu.wpi.first.math.controller.BangBangController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
@@ -27,7 +28,7 @@ public class AutoTrackCommand extends Command {
   private TurretSubsystem turret;
   private PositionData positionData;
   /** Creates a new AutoTrackCommand. */
-  public AutoTrackCommand(TurretSubsystem turret_, PositionData positionData_) {
+  public AutoTrackCommand(TurretSubsystem turret_, PositionData positionData_) { //min - max for angler is 15 - 45
     // Use addRequirements() here to declare subsystem dependencies.
     this.turret = turret_;
     this.positionData = positionData_;
@@ -37,6 +38,12 @@ public class AutoTrackCommand extends Command {
     NetworkTable table = inst.getTable("datatable");
     this.desiredRotData = table.getDoubleTopic("turret-auto-track/desired-rotation").publish();
     this.currentRotData = table.getDoubleTopic("turret-auto-track/current-rotation").publish();
+  }
+
+  private double getVelocity(double angle, double d) {
+    double g = 9.81;
+    double h = 1.778;
+    return Math.sqrt((-g * d * d) / (2 * Math.cos(angle) * Math.cos(angle) * (h - d * Math.tan(angle))));
   }
 
   // Called when the command is initially scheduled.
@@ -53,7 +60,19 @@ public class AutoTrackCommand extends Command {
     double robotAngle = p.yaw;
     double xFromHub = 4.83 - p.x;
     double yFromHub = 4 - p.y;
-    double distanceFromHub = Math.sqrt((xFromHub * xFromHub) + (yFromHub * yFromHub));
+    double distanceFromTarget = Math.sqrt((xFromHub * xFromHub) + (yFromHub * yFromHub));
+
+    // get angle in radians
+    double currentAnglerAngle = (75 - (this.turret.anglerMotor.getPosition().refresh().getValueAsDouble() / TurretConstants.anglerGearRatio) * 360) * (Math.PI / 180);
+    
+    double desiredAnglerAngle = (81 - (distanceFromTarget * 4)) * (Math.PI / 180);
+
+    if (desiredAnglerAngle < (50 * (Math.PI / 180))) {
+      desiredAnglerAngle = (50 * (Math.PI / 180));
+    }
+    else if (desiredAnglerAngle > (75 * (Math.PI / 180))) {
+      desiredAnglerAngle = (75 * (Math.PI / 180));
+    }
 
     double desiredRotation = ((Math.atan2(yFromHub, -xFromHub) * (180 / Math.PI)) + robotAngle - 90) / 360;
     double currentRotation = this.turret.getNeckPosition();
@@ -78,15 +97,30 @@ public class AutoTrackCommand extends Command {
 
     this.turret.neckMotor.set(controlSignal);
 
+    double anglerError = desiredAnglerAngle - currentAnglerAngle;
+    double anglerkP = 1.5;
+    double anglerSignal = anglerkP * -anglerError;
+    if (anglerError > 1) {
+      anglerError = 1;
+    }
+    else if (anglerError < -1) {
+      anglerError = -1;
+    }
+
+    this.turret.anglerMotor.set(anglerSignal);
+
   this.currentRotData.set(currentRotation);
   this.desiredRotData.set(desiredRotation);
 
   SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(TurretConstants.shooterkS, TurretConstants.shooterkV, TurretConstants.shooterkA);
-  double volts = feedforward.calculate(distanceFromHub * 0.75, 0);
+  double volts = feedforward.calculate(getVelocity(currentAnglerAngle, distanceFromTarget) * 2 / TurretConstants.circumferenceOfWheel);
   if (volts > 12) {
     volts = 12;
   }
   this.turret.shooterLeaderMotor.setVoltage(volts);
+
+  BangBangController bb_Controller = new BangBangController();
+  //this.turret.shooterLeaderMotor.set(bb_Controller.calculate(this.turret.shooterLeaderMotor.getVelocity().refresh().getValueAsDouble(), getVelocity(currentAnglerAngle, distanceFromTarget) / TurretConstants.circumferenceOfWheel));
 
   }
 

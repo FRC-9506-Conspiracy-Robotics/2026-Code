@@ -39,6 +39,7 @@ public class TurretSubsystem extends SubsystemBase {
   public final TalonFX anglerMotor = new TalonFX(TurretConstants.anglerMotorID, "Aux Can");
   public final TalonFX shooterLeaderMotor = new TalonFX(TurretConstants.shooterLeadID, "Aux Can");
   public final TalonFX shooterFollowerMotor = new TalonFX(TurretConstants.shooterFollowerID, "Aux Can");
+  public final TalonFX shooterHandoffMotor = new TalonFX(TurretConstants.shooterHandoffID, "Aux Can");
   
 
 
@@ -69,6 +70,20 @@ public class TurretSubsystem extends SubsystemBase {
 
     neckMotor.getConfigurator().apply(neckConfig);
 
+    TalonFXConfiguration anglerConfig = new TalonFXConfiguration();
+    anglerConfig
+      .withMotorOutput(
+        new MotorOutputConfigs()
+        .withNeutralMode(NeutralModeValue.Brake)
+      )
+      .withCurrentLimits(
+        new CurrentLimitsConfigs()
+          .withStatorCurrentLimit(TurretConstants.anglerCurrentLimit)
+          .withSupplyCurrentLimitEnable(true)
+      );
+
+    anglerMotor.getConfigurator().apply(anglerConfig);
+
     TalonFXConfiguration shooterLeadConfig = new TalonFXConfiguration();
     shooterLeadConfig
       .withMotorOutput(
@@ -97,6 +112,20 @@ public class TurretSubsystem extends SubsystemBase {
 
       shooterFollowerMotor.getConfigurator().apply(shooterFollowConfig);
       shooterFollowerMotor.setControl(new Follower(TurretConstants.shooterLeadID, MotorAlignmentValue.Opposed));
+
+      TalonFXConfiguration handoffConfig = new TalonFXConfiguration();
+    handoffConfig
+      .withMotorOutput(
+        new MotorOutputConfigs()
+        .withNeutralMode(NeutralModeValue.Brake)
+      )
+      .withCurrentLimits(
+        new CurrentLimitsConfigs()
+          .withStatorCurrentLimit(TurretConstants.handoffCurrentLimit)
+          .withSupplyCurrentLimitEnable(true)
+      );
+
+    shooterHandoffMotor.getConfigurator().apply(handoffConfig);
   }
 
   public double getNeckPosition() {

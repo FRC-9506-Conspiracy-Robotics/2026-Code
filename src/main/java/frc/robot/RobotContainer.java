@@ -21,8 +21,11 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.AlignAprilTags;
 import frc.robot.commands.AutoTrackCommand;
+import frc.robot.commands.LoadShooter;
+import frc.robot.commands.Reload;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.HopperSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LimelightVisionSubsystem;
 import frc.robot.subsystems.PivotSubsystem;
@@ -63,11 +66,16 @@ public class RobotContainer {
     private final AnglerSubsytem angler = new AnglerSubsytem();
     private final ShooterSubsystem shooter = new ShooterSubsystem();
     private final TurretSubsystem turret = new TurretSubsystem();
+    private final HopperSubsystem hopper = new HopperSubsystem();
+    private IntakeSubsystem intake = new IntakeSubsystem();
     private final PositionData positionData = new PositionData(drivetrain);
+
 
     private AlignAprilTags alignAprilTags = new AlignAprilTags(limeLight, drivetrain);
     private AutoTrackCommand autoTrackCommand = new AutoTrackCommand(turret, positionData);
-    private IntakeSubsystem intake = new IntakeSubsystem();
+    
+    private Reload reload = new Reload(hopper, intake);
+    private LoadShooter loadShooter = new LoadShooter(hopper, turret, intake);
 
     public RobotContainer() {
 
@@ -150,7 +158,9 @@ public class RobotContainer {
         joystick.b().whileTrue(drivetrain.applyRequest(() ->
             point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
         ));
-        // joystick.x().onTrue(intake.deployIntake());
+        joystick.y().onTrue(intake.deployIntake());
+        joystick.x().whileTrue(reload);
+        joystick.rightTrigger().whileTrue(loadShooter);
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.

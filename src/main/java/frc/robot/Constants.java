@@ -29,8 +29,8 @@ public final class Constants {
         public static final int deployGearRatio = 15;
         public static final int intakeGearRatio = 2;
 
-        public static final int deployCurrentLimit = 50;
-        public static final int intakeCurrentLimit = 20;
+        public static final int deployCurrentLimit = 40;
+        public static final int intakeCurrentLimit = 10;
     }
 
     public static class TurretConstants {
@@ -41,15 +41,22 @@ public final class Constants {
         public static final int shooterHandoffID = 21;
 
         public static final double neckGearRatio = 37.5;
+        public static final double anglerGearRatio = 66.6667;
 
         public static final int neckCurrentLimit = 40;
+        public static final int anglerCurrentLimit = 20;
+        public static final int handoffCurrentLimit = 40;
 
-        public static final double shooterkV = 0.37844;
-        public static final double shooterkA = 0.021975;
+        public static final double circumferenceOfWheel = 0.319186;
+
+        public static final double shooterkV = 0.12079;
+        public static final double shooterkA = 0;
         public static final double shooterkS = 0.24189;
     }
 
-    public static class HandoffConstants {
-        public static final int HandoffMotorID = 16;
+    public static class HopperConstants {
+        public static final int hopperMotorID = 16;
+
+        public static final int hopperCurrentLimit = 20;
     }
 }

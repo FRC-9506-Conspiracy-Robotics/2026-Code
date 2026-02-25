@@ -25,7 +25,6 @@ public class DeployIntake extends Command {
     // flip the value of intake.desiredPosition
     this.intake.desiredPosition = !this.intake.desiredPosition;
     // turn the intake motor off
-    this.intake.intakeMotor.set(0.0);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -43,11 +42,6 @@ public class DeployIntake extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    if (this.intake.desiredPosition == this.intake.DEPLOYED) {
-      this.intake.intakeMotor.set(-0.75);
-    } else {
-      this.intake.intakeMotor.set(0.0);
-    }
     this.intake.deployLeaderMotor.set(0);
   }
 
@@ -55,7 +49,7 @@ public class DeployIntake extends Command {
   @Override
   public boolean isFinished() {
     //Numbers will be changed
-    double deployPosition = -9;
+    double deployPosition = -8.5;
     double stowedPosition = -0.5;
 
     if (this.intake.desiredPosition == this.intake.DEPLOYED) {
