@@ -6,7 +6,8 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Meters;
 
-import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.LimelightHelpers;
 import frc.robot.LimelightHelpers.PoseEstimate;
 
@@ -14,6 +15,9 @@ import frc.robot.LimelightHelpers.PoseEstimate;
 public class PositionData {
     double xOffset = 0;
     double yOffset = 0;
+    double lastX = 0;
+    double lastY = 0;
+    boolean firstPosRecieved = false;
 
     
 
@@ -38,13 +42,53 @@ public class PositionData {
 
     public Pose getPoseData() {
         if (LimelightHelpers.getTV("")) {
-            PoseEstimate currentPos = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("");
-            Pose p = new Pose();
-            p.x = currentPos.pose.getMeasureX().in(Meters);
-            p.y = currentPos.pose.getMeasureY().in(Meters);
-            p.yaw = currentPos.pose.getRotation().getDegrees();
-            findOffset();
-            return p;
+            if (DriverStation.getAlliance().get() == Alliance.Blue) {
+                PoseEstimate currentPos = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("");
+                Pose p = new Pose();
+                p.x = currentPos.pose.getMeasureX().in(Meters);
+                p.y = currentPos.pose.getMeasureY().in(Meters);
+                p.yaw = currentPos.pose.getRotation().getDegrees();
+                
+                if (!firstPosRecieved) {
+                    lastX = currentPos.pose.getMeasureX().in(Meters);
+                    lastY = currentPos.pose.getMeasureY().in(Meters);
+                    firstPosRecieved = !firstPosRecieved;
+                    findOffset();
+                    return p;
+                }
+                if ((p.x - lastX < 0.75) && (p.x - lastX > -0.75) && (p.y - lastY < 0.75) && (p.y - lastY > -0.75)) {
+                    lastX = p.x;
+                    lastY = p.y;
+                    // this.swerve.addVisionMeasurement(currentPos.pose, Utils.getCurrentTimeSeconds());
+                    findOffset();
+                    return p;
+                }
+            }
+            else if (DriverStation.getAlliance().get() == Alliance.Red) {
+                PoseEstimate currentPos = LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2("");
+                Pose p = new Pose();
+                p.x = currentPos.pose.getMeasureX().in(Meters);
+                p.y = currentPos.pose.getMeasureY().in(Meters);
+                p.yaw = currentPos.pose.getRotation().getDegrees();
+                
+                if (!firstPosRecieved) {
+                    lastX = currentPos.pose.getMeasureX().in(Meters);
+                    lastY = currentPos.pose.getMeasureY().in(Meters);
+                    firstPosRecieved = !firstPosRecieved;
+                    findOffset();
+                    return p;
+                }
+                if ((p.x - lastX < 0.75) && (p.x - lastX > -0.75) && (p.y - lastY < 0.75) && (p.y - lastY > -0.75)) {
+                    lastX = p.x;
+                    lastY = p.y;
+                    // this.swerve.addVisionMeasurement(currentPos.pose, Utils.getCurrentTimeSeconds());
+                    findOffset();
+                    return p;
+                }
+            }
+            
+            
+            
         }
 
         Pose p = new Pose();

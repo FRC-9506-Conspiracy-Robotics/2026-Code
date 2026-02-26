@@ -5,6 +5,8 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.LimelightVisionSubsystem;
+import frc.robot.subsystems.PositionData;
+import frc.robot.subsystems.PositionData.Pose;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -29,6 +31,7 @@ public class AlignAprilTags extends Command {
   // Create properties for limelight subsystem and drivetrain
   private LimelightVisionSubsystem limelight;
   private CommandSwerveDrivetrain swerdrive;
+  private PositionData positionData;
 
   private int closest_target_point = -1; // -1 means did not find any targets in range
   private double [][] target_points = {
@@ -48,10 +51,12 @@ public class AlignAprilTags extends Command {
   /** Creates a new AlignAprilTags. */
   public AlignAprilTags(
     LimelightVisionSubsystem limelight,
-    CommandSwerveDrivetrain drivetrain
+    CommandSwerveDrivetrain drivetrain,
+    PositionData positionData
   ) {
     this.limelight = limelight;
     this.swerdrive = drivetrain;
+    this.positionData = positionData;
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(limelight, drivetrain);
@@ -71,11 +76,11 @@ public class AlignAprilTags extends Command {
     if ( LimelightHelpers.getTV("") == true ) {
       System.out.print("Target Found");
       tagFound = true;
-      PoseEstimate currentPos = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("");
+      Pose p = this.positionData.getPoseData();
       double minimum_distance = 99999;
       for (int i = 0; i < target_points.length; i++) {
-        double posX = currentPos.pose.getMeasureX().in(Meters);
-        double posY = currentPos.pose.getMeasureY().in(Meters);
+        double posX = p.x;
+        double posY = p.y;
         double xOffset = posX - target_points[i][0];
         double yOffset = posY - target_points[i][1];
         double distance_to_target = Math.sqrt((xOffset * xOffset) + (yOffset * yOffset));
@@ -108,10 +113,10 @@ public class AlignAprilTags extends Command {
   @Override
   public void execute() {
 
-    PoseEstimate mt2Pose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("");
-    double robotAngle = mt2Pose.pose.getRotation().getDegrees();
-    double xDisplacement = mt2Pose.pose.getMeasureX().in(Meters);
-    double yDisplacement = mt2Pose.pose.getMeasureY().in(Meters);
+    Pose p = this.positionData.getPoseData();
+    double robotAngle = p.yaw;
+    double xDisplacement = p.x;
+    double yDisplacement = p.y;
     // System.out.printf("Robot Yaw is: %f\n", robotAngle);
 
     double xMeters_from_zone = target_points[closest_target_point][0] - xDisplacement;
@@ -146,18 +151,13 @@ public class AlignAprilTags extends Command {
     this.xAxisError.set(xError);
     this.yAxisError.set(yError);
 
-    if ( LimelightHelpers.getTV("") == true ) {
+    
     SwerveRequest request = drive.withVelocityX(xError)
     .withVelocityY(yError)
     .withRotationalRate(yawError); 
     this.swerdrive.setControl(request);   
-    }
-    else {
-      SwerveRequest request = drive.withVelocityX(0)
-    .withVelocityY(0)
-    .withRotationalRate(0); 
-    this.swerdrive.setControl(request); 
-    }
+    
+    
 
 
    
@@ -165,7 +165,12 @@ public class AlignAprilTags extends Command {
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    SwerveRequest request = drive.withVelocityX(0)
+    .withVelocityY(0)
+    .withRotationalRate(0);
+    this.swerdrive.setControl(request);
+  }
 
   // Returns true when the command should end.
   // Command is over when we're aligned with the AprilTAG

@@ -30,7 +30,7 @@ public class LoadShooter extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    this.hopper.hopperMotor.set(-0.6);
+    this.hopper.hopperMotor.set(-1);
     this.turret.shooterHandoffMotor.set(0.75);
     this.intake.intakeMotor.set(-0.75);
   }

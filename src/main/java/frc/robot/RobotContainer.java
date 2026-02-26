@@ -23,6 +23,7 @@ import frc.robot.commands.AlignAprilTags;
 import frc.robot.commands.AutoTrackCommand;
 import frc.robot.commands.LoadShooter;
 import frc.robot.commands.Reload;
+import frc.robot.commands.UnjamShooter;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.HopperSubsystem;
@@ -71,15 +72,16 @@ public class RobotContainer {
     private final PositionData positionData = new PositionData(drivetrain);
 
 
-    private AlignAprilTags alignAprilTags = new AlignAprilTags(limeLight, drivetrain);
+    private AlignAprilTags alignAprilTags = new AlignAprilTags(limeLight, drivetrain, positionData);
     private AutoTrackCommand autoTrackCommand = new AutoTrackCommand(turret, positionData);
     
     private Reload reload = new Reload(hopper, intake);
     private LoadShooter loadShooter = new LoadShooter(hopper, turret, intake);
+    private UnjamShooter unjamShooter = new UnjamShooter(turret);
 
     public RobotContainer() {
 
-        NamedCommands.registerCommand("Align Apriltags", new AlignAprilTags(this.limeLight, this.drivetrain));
+        NamedCommands.registerCommand("Align Apriltags", new AlignAprilTags(this.limeLight, this.drivetrain, this.positionData));
 
         configureBindings();
         RobotConfig config;
@@ -161,6 +163,7 @@ public class RobotContainer {
         joystick.y().onTrue(intake.deployIntake());
         joystick.x().whileTrue(reload);
         joystick.rightTrigger().whileTrue(loadShooter);
+        joystick.rightBumper().whileTrue(unjamShooter);
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
