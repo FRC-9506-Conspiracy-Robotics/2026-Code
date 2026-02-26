@@ -5,21 +5,21 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.HandoffSubsystem;
 import frc.robot.subsystems.HopperSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.TurretSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class LoadShooter extends Command {
   private HopperSubsystem hopper;
-  private TurretSubsystem turret;
+  private HandoffSubsystem handoff;
   private IntakeSubsystem intake;
   /** Creates a new LoadShooter. */
-  public LoadShooter(HopperSubsystem hopper_, TurretSubsystem turret_, IntakeSubsystem intake_) {
+  public LoadShooter(HopperSubsystem hopper_, HandoffSubsystem handoff_, IntakeSubsystem intake_) {
     this.hopper = hopper_;
-    this.turret = turret_;
+    this.handoff = handoff_;
     this.intake = intake_;
-    addRequirements(this.hopper, this.turret, this.intake);
+    addRequirements(this.hopper, this.handoff, this.intake);
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -31,7 +31,7 @@ public class LoadShooter extends Command {
   @Override
   public void execute() {
     this.hopper.hopperMotor.set(-1);
-    this.turret.shooterHandoffMotor.set(0.75);
+    this.handoff.shooterHandoffMotor.set(0.75);
     this.intake.intakeMotor.set(-0.75);
   }
 
@@ -39,7 +39,7 @@ public class LoadShooter extends Command {
   @Override
   public void end(boolean interrupted) {
     this.hopper.hopperMotor.set(0);
-    this.turret.shooterHandoffMotor.set(0);
+    this.handoff.shooterHandoffMotor.set(0);
     this.intake.intakeMotor.set(0);
   }
 

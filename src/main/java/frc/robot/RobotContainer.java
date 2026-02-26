@@ -26,6 +26,7 @@ import frc.robot.commands.Reload;
 import frc.robot.commands.UnjamShooter;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.HandoffSubsystem;
 import frc.robot.subsystems.HopperSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LimelightVisionSubsystem;
@@ -66,6 +67,7 @@ public class RobotContainer {
     private final PivotSubsystem pivot = new PivotSubsystem();
     private final AnglerSubsytem angler = new AnglerSubsytem();
     private final ShooterSubsystem shooter = new ShooterSubsystem();
+    private final HandoffSubsystem handoff = new HandoffSubsystem();
     private final TurretSubsystem turret = new TurretSubsystem();
     private final HopperSubsystem hopper = new HopperSubsystem();
     private IntakeSubsystem intake = new IntakeSubsystem();
@@ -76,8 +78,8 @@ public class RobotContainer {
     private AutoTrackCommand autoTrackCommand = new AutoTrackCommand(turret, positionData);
     
     private Reload reload = new Reload(hopper, intake);
-    private LoadShooter loadShooter = new LoadShooter(hopper, turret, intake);
-    private UnjamShooter unjamShooter = new UnjamShooter(turret);
+    private LoadShooter loadShooter = new LoadShooter(hopper, handoff, intake);
+    private UnjamShooter unjamShooter = new UnjamShooter(handoff);
 
     public RobotContainer() {
 

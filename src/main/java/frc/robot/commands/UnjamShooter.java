@@ -5,15 +5,16 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.HandoffSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class UnjamShooter extends Command {
-  private TurretSubsystem turret;
+  public final HandoffSubsystem handoff;
   /** Creates a new UnjamShooter. */
-  public UnjamShooter(TurretSubsystem turret_) {
-    this.turret = turret_;
-    addRequirements(this.turret);
+  public UnjamShooter(HandoffSubsystem handoff_) {
+    this.handoff= handoff_;
+    addRequirements(this.handoff);
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -26,13 +27,13 @@ public class UnjamShooter extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    this.turret.shooterHandoffMotor.set(-0.75);
+    this.handoff.shooterHandoffMotor.set(-0.75);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    this.turret.shooterHandoffMotor.set(0);
+    this.handoff.shooterHandoffMotor.set(0);
   }
 
   // Returns true when the command should end.
