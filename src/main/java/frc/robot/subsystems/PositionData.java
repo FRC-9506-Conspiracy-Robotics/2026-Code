@@ -6,6 +6,9 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Meters;
 
+import com.ctre.phoenix6.Utils;
+
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -23,6 +26,7 @@ public class PositionData {
     boolean firstPosRecieved = false;
 
     final DoublePublisher pidgeonYaw;
+    final DoublePublisher allianceFlip;
 
     double x = 0;
     double y = 0;
@@ -42,9 +46,13 @@ public class PositionData {
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
         NetworkTable table = inst.getTable("datatable");
         pidgeonYaw = table.getDoubleTopic("auto-track-command/pidgeon-yaw").publish();
+        this.allianceFlip = table.getDoubleTopic("auto-track-command/alliance-flipped").publish();
     }
 
     private void findOffset() {
+        if (LimelightHelpers.getTV("") == false) {
+            return;
+        }
         PoseEstimate currentPos;
         if (DriverStation.getAlliance().get() == Alliance.Red) {
             currentPos = LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2("");
@@ -59,9 +67,12 @@ public class PositionData {
 
     public void updatePose() {
         double correction = 0;
+        double allianceFlipped = 1;
         if (DriverStation.getAlliance().get() == Alliance.Red) {
             correction = 0;
+            allianceFlipped = -1;
         }
+        this.allianceFlip.set(allianceFlipped);
         pidgeonYaw.set(this.swerve.getRotation3d().getZ() * (180/Math.PI));
         if (LimelightHelpers.getTV("")) {
             if (DriverStation.getAlliance().get() == Alliance.Blue) {
@@ -97,8 +108,12 @@ public class PositionData {
                 p.x = currentPos.pose.getMeasureX().in(Meters);
                 p.y = currentPos.pose.getMeasureY().in(Meters);
                 p.yaw = currentPos.pose.getRotation().getDegrees();
+
+                if (p.x == 0.00000) {
+                    return;
+                }
                 
-                if (!firstPosRecieved) {
+                // if (!firstPosRecieved && p.x != 0.00000) {
                     lastX = p.x;
                     lastY = p.y;
                     firstPosRecieved = !firstPosRecieved;
@@ -106,23 +121,27 @@ public class PositionData {
                     this.x = p.x;
                     this.y = p.y;
                     this.yaw = p.yaw + correction;
+                    Pose2d visionMeasure = new Pose2d(p.x, p.y, this.swerve.getState().RawHeading);
+                    this.swerve.addVisionMeasurement(visionMeasure, Utils.getCurrentTimeSeconds());
                     return;
-                }
-                if ((p.x - lastX < 0.75) && (p.x - lastX > -0.75) && (p.y - lastY < 0.75) && (p.y - lastY > -0.75)) {
-                    lastX = p.x;
-                    lastY = p.y;
-                    findOffset();
-                    this.x = p.x;
-                    this.y = p.y;
-                    this.yaw = p.yaw + correction;
-                    return;
-                }
+                // }
+                // if ((p.x - lastX < 0.75) && (p.x - lastX > -0.75) && (p.y - lastY < 0.75) && (p.y - lastY > -0.75) && (p.x != 0.00000)) {
+                //     lastX = p.x;
+                //     lastY = p.y;
+                //     findOffset();
+                //     this.x = p.x;
+                //     this.y = p.y;
+                //     this.yaw = p.yaw + correction;
+                //     return;
+                // }
             }
 
         }
 
-        this.x = this.swerve.getState().Pose.getMeasureX().in(Meters) + xOffset;
-        this.y = this.swerve.getState().Pose.getMeasureY().in(Meters) + yOffset;
+        
+
+        this.x = -this.swerve.getState().Pose.getMeasureX().in(Meters) + xOffset;
+        this.y = -this.swerve.getState().Pose.getMeasureY().in(Meters) + yOffset;
         this.yaw = this.swerve.getRotation3d().getZ() * (180/Math.PI) + correction;
     }
 

@@ -7,6 +7,7 @@ package frc.robot.commands;
 
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -78,6 +79,7 @@ public class AutoTrackCommand extends Command {
     double desiredRotation = ((Math.atan2(yFromHub, -xFromHub) * (180 / Math.PI)) + robotAngle - 90) / 360;
     double currentRotation = this.turret.getNeckPosition();
     
+    
 
     if (desiredRotation < 0) {
       desiredRotation += 1;
@@ -89,14 +91,14 @@ public class AutoTrackCommand extends Command {
     double rotationError = desiredRotation - currentRotation;
     double kP = 4;
     double controlSignal = kP * rotationError;
-    if (controlSignal > 1) {
-      controlSignal = 1;
+    if (controlSignal > 0.5) {
+      controlSignal = 0.5;
     }
-    else if (controlSignal < -1) {
-      controlSignal = -1;
+    else if (controlSignal < -0.5) {
+      controlSignal = -0.5;
     }
 
-   this.turret.neckMotor.set(controlSignal);
+   // this.turret.neckMotor.set(controlSignal);
 
     double anglerError = desiredAnglerAngle - currentAnglerAngle;
     double anglerkP = 1.5;
