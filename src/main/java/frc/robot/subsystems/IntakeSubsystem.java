@@ -27,6 +27,7 @@ public class IntakeSubsystem extends SubsystemBase {
   public final SparkMax deployLeaderMotor = new SparkMax(IntakeConstants.deployLeaderID, MotorType.kBrushless);
   private final SparkMax deployFollowerMotor = new SparkMax(IntakeConstants.deployFollowerID, MotorType.kBrushless);
   public final RelativeEncoder deployEncoder = deployLeaderMotor.getEncoder();
+  public final RelativeEncoder followerEncoder = deployFollowerMotor.getEncoder();
 
   final DoublePublisher deployInfo;
 
@@ -62,7 +63,7 @@ public class IntakeSubsystem extends SubsystemBase {
       .idleMode(IdleMode.kBrake)
       .follow(deployLeaderMotor, true);
 
-    deployFollowerMotor.configure(deployFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    deployFollowerMotor.configure(deployFollowerConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
 
     NetworkTableInstance inst = NetworkTableInstance.getDefault();
     NetworkTable table = inst.getTable("datatable");
@@ -82,6 +83,6 @@ public class IntakeSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    this.deployInfo.set(deployEncoder.getPosition());
+    this.deployInfo.set(followerEncoder.getPosition());
   }
 }

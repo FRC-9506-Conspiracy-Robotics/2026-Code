@@ -4,33 +4,45 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.LimelightHelpers.PoseEstimate;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-
+import frc.robot.subsystems.PositionData;
 import edu.wpi.first.units.measure.*;
 import static edu.wpi.first.units.Units.*;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
   private CommandSwerveDrivetrain swerdrive;
+  private PositionData positionData;
 
   private final RobotContainer m_robotContainer;
 
   public Robot() {
     m_robotContainer = new RobotContainer();
     this.swerdrive = m_robotContainer.drivetrain;
+    this.positionData = m_robotContainer.positionData;
   }
 
   @Override
   public void robotPeriodic() {
 
+    double correction = 0;
+
+    if (DriverStation.getAlliance().get() == Alliance.Red) {
+      correction = 180;
+    }
+
     LimelightHelpers.SetRobotOrientation(
       "", 
-      this.swerdrive.getRotation3d().getZ() * (180 / Math.PI), 
+      this.swerdrive.getRotation3d().getZ() * (180 / Math.PI) + correction, 
       0, 0, 0, 0, 0);
+    
+    this.positionData.updatePose();
     
     CommandScheduler.getInstance().run(); 
   }

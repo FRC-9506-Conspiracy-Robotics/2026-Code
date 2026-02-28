@@ -20,6 +20,9 @@ import frc.robot.Constants.TurretConstants;
 public class AutoTrackCommand extends Command {
   final DoublePublisher desiredRotData;
   final DoublePublisher currentRotData;
+  final DoublePublisher poseX;
+  final DoublePublisher poseY;
+  final DoublePublisher poseYaw;
   private TurretSubsystem turret;
   private PositionData positionData;
   /** Creates a new AutoTrackCommand. */
@@ -33,6 +36,9 @@ public class AutoTrackCommand extends Command {
     NetworkTable table = inst.getTable("datatable");
     this.desiredRotData = table.getDoubleTopic("turret-auto-track/desired-rotation").publish();
     this.currentRotData = table.getDoubleTopic("turret-auto-track/current-rotation").publish();
+    this.poseX = table.getDoubleTopic("turret-auto-track/px").publish();
+    this.poseY = table.getDoubleTopic("turret-auto-track/py").publish();
+    this.poseYaw = table.getDoubleTopic("turret-auto-track/pyaw").publish();
   }
 
   private double getVelocity(double angle, double d) {
@@ -51,10 +57,10 @@ public class AutoTrackCommand extends Command {
   @Override
   public void execute() {
 
-    Pose p = this.positionData.getPoseData();
+    Pose p = this.positionData.getPose();
     double robotAngle = p.yaw;
-    double xFromHub = 4.63 - p.x;
-    double yFromHub = 4.2 - p.y;
+    double xFromHub = 4.56 - p.x;
+    double yFromHub = 4.01 - p.y;
     double distanceFromTarget = Math.sqrt((xFromHub * xFromHub) + (yFromHub * yFromHub));
 
     // get angle in radians
@@ -90,7 +96,7 @@ public class AutoTrackCommand extends Command {
       controlSignal = -1;
     }
 
-    this.turret.neckMotor.set(controlSignal);
+   this.turret.neckMotor.set(controlSignal);
 
     double anglerError = desiredAnglerAngle - currentAnglerAngle;
     double anglerkP = 1.5;
@@ -102,17 +108,20 @@ public class AutoTrackCommand extends Command {
       anglerError = -1;
     }
 
-    this.turret.anglerMotor.set(anglerSignal);
+   // this.turret.anglerMotor.set(anglerSignal);
 
   this.currentRotData.set(currentRotation);
   this.desiredRotData.set(desiredRotation);
+  this.poseX.set(p.x);
+  this.poseY.set(p.y);
+  this.poseYaw.set(p.yaw);
 
   SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(TurretConstants.shooterkS, TurretConstants.shooterkV, TurretConstants.shooterkA);
   double volts = feedforward.calculate(getVelocity(currentAnglerAngle, distanceFromTarget) * 1.7 / TurretConstants.circumferenceOfWheel);
   if (volts > 12) {
     volts = 12;
   }
-  this.turret.shooterLeaderMotor.setVoltage(volts);
+  // this.turret.shooterLeaderMotor.setVoltage(volts);
 
   // BangBangController bb_Controller = new BangBangController();
   // this.turret.shooterLeaderMotor.set(bb_Controller.calculate(this.turret.shooterLeaderMotor.getVelocity().refresh().getValueAsDouble(), getVelocity(currentAnglerAngle, distanceFromTarget) / TurretConstants.circumferenceOfWheel));

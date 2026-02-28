@@ -71,7 +71,7 @@ public class RobotContainer {
     private final TurretSubsystem turret = new TurretSubsystem();
     private final HopperSubsystem hopper = new HopperSubsystem();
     private IntakeSubsystem intake = new IntakeSubsystem();
-    private final PositionData positionData = new PositionData(drivetrain);
+    public final PositionData positionData = new PositionData(drivetrain);
 
 
     private AlignAprilTags alignAprilTags = new AlignAprilTags(limeLight, drivetrain, positionData);

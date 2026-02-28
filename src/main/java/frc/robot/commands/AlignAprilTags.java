@@ -76,7 +76,7 @@ public class AlignAprilTags extends Command {
     if ( LimelightHelpers.getTV("") == true ) {
       System.out.print("Target Found");
       tagFound = true;
-      Pose p = this.positionData.getPoseData();
+      Pose p = this.positionData.getPose();
       double minimum_distance = 99999;
       for (int i = 0; i < target_points.length; i++) {
         double posX = p.x;
@@ -113,7 +113,7 @@ public class AlignAprilTags extends Command {
   @Override
   public void execute() {
 
-    Pose p = this.positionData.getPoseData();
+    Pose p = this.positionData.getPose();
     double robotAngle = p.yaw;
     double xDisplacement = p.x;
     double yDisplacement = p.y;

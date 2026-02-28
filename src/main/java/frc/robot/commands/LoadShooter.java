@@ -32,7 +32,12 @@ public class LoadShooter extends Command {
   public void execute() {
     this.hopper.hopperMotor.set(-1);
     this.handoff.shooterHandoffMotor.set(0.75);
-    this.intake.intakeMotor.set(-0.75);
+    if (this.intake.deployEncoder.getPosition() < -4.5) {
+      this.intake.intakeMotor.set(-0.75);
+    }
+    else {
+      this.intake.intakeMotor.set(0);
+    }
   }
 
   // Called once the command ends or is interrupted.
