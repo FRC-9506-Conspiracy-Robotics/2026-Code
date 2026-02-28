@@ -2,7 +2,7 @@
   "imu": {
     "type": "pigeon",
     "id": 13,
-    "canbus": "canivore"
+    "canbus": "Drive Can"
   },
   "invertedIMU": false,
   "modules": [
