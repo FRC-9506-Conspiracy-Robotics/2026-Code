@@ -1,21 +1,16 @@
 package frc.robot;
 
-import static edu.wpi.first.units.Units.*;
-import edu.wpi.first.units.measure.*;
-
-import edu.wpi.first.math.controller.*;
+import edu.wpi.first.math.util.Units;
 
 public final class Constants {
-    public static class PivotConstants {
-        public static final int PivotMotorID = 1;
+
+    public static class DriverConstants {
+        public static final int kDriverControllerPort = 0;
+        public static final double kDeadband = 0.05;
     }
 
-    public static class AnglerConstants {
-        public static final int AnglerMotorID = 2;
+    public static class SwerveConstants {
+        public static final double maxDriveSpeed = Units.feetToMeters(15);
     }
 
-    public static class ShooterConstants {
-        public static final int leaderShooterMotorID = 3;
-        public static final int followerShooterMotorID = 4;
-    }
 }
