@@ -7,6 +7,7 @@ package frc.robot;
 import java.io.File;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -15,13 +16,22 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.DriverConstants;
+import frc.robot.commands.AutoTrackCommand;
+import frc.robot.commands.LoadShooter;
+import frc.robot.subsystems.HandoffSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.PositionData;
+import frc.robot.subsystems.SpindexSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.subsystems.TurretSubsystem;
+import swervelib.SwerveDrive;
 import swervelib.SwerveInputStream;
 
 public class RobotContainer {
 
   final CommandXboxController mDriverController = new CommandXboxController(DriverConstants.kDriverControllerPort);
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
+  private final SwerveDrive swerveDrive = drivebase.getSwerveDrive();
 
   //converts controller inputs to swerveinputstream type for field oriented
   SwerveInputStream driveAngularVelocity = 
@@ -55,12 +65,24 @@ public class RobotContainer {
 
   private final SendableChooser<Command> autoChooser;
 
+  private final HandoffSubsystem handoff = new HandoffSubsystem();
+  private final IntakeSubsystem intake = new IntakeSubsystem();
+  private final SpindexSubsystem spindex = new SpindexSubsystem();
+  private final TurretSubsystem turret = new TurretSubsystem();
+  private final PositionData positionData = new PositionData(swerveDrive);
+
+  private AutoTrackCommand autoTrackCommand = new AutoTrackCommand(turret, positionData);
+  private LoadShooter loadShooter = new LoadShooter(spindex, handoff, intake);
+
   public RobotContainer() {
+
+    NamedCommands.registerCommand("Load Shooter", loadShooter);
     
     configureBindings();
 
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
+    
 
   }
 
@@ -76,10 +98,21 @@ public class RobotContainer {
 
     mDriverController.leftStick().onTrue(drivebase.zero());
 
+    this.turret.setDefaultCommand(autoTrackCommand);
+
+    mDriverController.rightTrigger().whileTrue(loadShooter);
+    mDriverController.rightBumper().whileTrue(this.handoff.unjamShooter());
+    mDriverController.x().whileTrue(this.intake.reload());
+    mDriverController.y().onTrue(this.intake.deployIntake());
+
+    
+
   }
+
 
   public Command getAutonomousCommand() {
     return autoChooser.getSelected();
   }
+
 
 }
