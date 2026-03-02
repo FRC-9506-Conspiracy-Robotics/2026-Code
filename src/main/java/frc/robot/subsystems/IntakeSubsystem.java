@@ -83,7 +83,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public Command reload() {
     return startEnd(
-      () -> intakeMotor.set(-0.75),
+      () -> intakeMotor.set(-1),
       () -> intakeMotor.set(0)
       );
   }

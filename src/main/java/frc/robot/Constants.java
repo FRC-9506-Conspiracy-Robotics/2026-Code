@@ -55,11 +55,11 @@ public final class Constants {
     public static class SpindexConstants {
         public static final int spindexMotorID = 16;
 
-        public static final int spindexCurrentLimit = 20;
+        public static final int spindexCurrentLimit = 40;
     }
 
     public static class LimelightNames {
-        public static final String limelight4AFront = "afouri";
-        public static final String limelight3ALeft = "athree";
+        public static final String limelight4AFront = "limelight-afouri";
+        public static final String limelight3ALeft = "limelight-athree";
     }
 }

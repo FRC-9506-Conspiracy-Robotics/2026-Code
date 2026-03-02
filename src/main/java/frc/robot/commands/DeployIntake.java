@@ -30,7 +30,7 @@ public class DeployIntake extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double deploySpeed = 0.20;
+    double deploySpeed = 0.5;
 
     if (this.intake.desiredPosition == this.intake.DEPLOYED) {
       this.intake.deployLeaderMotor.set(-deploySpeed);

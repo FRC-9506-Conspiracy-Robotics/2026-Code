@@ -31,19 +31,19 @@ public class RobotContainer {
 
   final CommandXboxController mDriverController = new CommandXboxController(DriverConstants.kDriverControllerPort);
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
-  private final SwerveDrive swerveDrive = drivebase.getSwerveDrive();
+  public final SwerveDrive swerveDrive = drivebase.getSwerveDrive();
 
   //converts controller inputs to swerveinputstream type for field oriented
   SwerveInputStream driveAngularVelocity = 
   SwerveInputStream.of(
       drivebase.getSwerveDrive(),
-      () -> mDriverController.getLeftY(),
-      () -> mDriverController.getLeftX()
+      () -> -mDriverController.getLeftY(),
+      () -> -mDriverController.getLeftX()
   )
   .withControllerRotationAxis(() -> -mDriverController.getRightX())
   .deadband(DriverConstants.kDeadband)
   .scaleTranslation(0.8)
-  .allianceRelativeControl(true);
+  .allianceRelativeControl(false);
   
   //copies previous stream and converts to robot oriented
   SwerveInputStream driveRobotOriented = 
@@ -61,7 +61,7 @@ public class RobotContainer {
   )
   .deadband(DriverConstants.kDeadband)
   .scaleTranslation(0.8)
-  .allianceRelativeControl(true);
+  .allianceRelativeControl(false);
 
   private final SendableChooser<Command> autoChooser;
 
@@ -69,14 +69,18 @@ public class RobotContainer {
   private final IntakeSubsystem intake = new IntakeSubsystem();
   private final SpindexSubsystem spindex = new SpindexSubsystem();
   private final TurretSubsystem turret = new TurretSubsystem();
-  private final PositionData positionData = new PositionData(swerveDrive);
+  public final PositionData positionData = new PositionData(swerveDrive);
 
   private AutoTrackCommand autoTrackCommand = new AutoTrackCommand(turret, positionData);
   private LoadShooter loadShooter = new LoadShooter(spindex, handoff, intake);
 
+
   public RobotContainer() {
 
     NamedCommands.registerCommand("Load Shooter", loadShooter);
+    NamedCommands.registerCommand("Auto Track", autoTrackCommand);
+    NamedCommands.registerCommand("Deploy Intake", this.intake.deployIntake());
+    NamedCommands.registerCommand("Reload", this.intake.reload());
     
     configureBindings();
 

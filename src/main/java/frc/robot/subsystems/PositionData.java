@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Meters;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -48,20 +49,9 @@ public class PositionData {
         this.allianceFlip = table.getDoubleTopic("auto-track-command/alliance-flipped").publish();
     }
 
-    private void findOffset() {
-        if (LimelightHelpers.getTV(LimelightNames.limelight4AFront) == false) {
-            return;
-        }
-        PoseEstimate currentPos;
-        if (DriverStation.getAlliance().get() == Alliance.Red) {
-            currentPos = LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(LimelightNames.limelight4AFront);
-            xOffset = currentPos.pose.getMeasureX().in(Meters) - this.swerve.getPose().getMeasureX().in(Meters);
-            yOffset = currentPos.pose.getMeasureY().in(Meters) - this.swerve.getPose().getMeasureY().in(Meters);
-            return;
-        }
-        currentPos = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LimelightNames.limelight4AFront);
-        xOffset = currentPos.pose.getMeasureX().in(Meters) - this.swerve.getPose().getMeasureX().in(Meters);
-        yOffset = currentPos.pose.getMeasureY().in(Meters) - this.swerve.getPose().getMeasureY().in(Meters);
+    private void findOffset(double visX, double visY) {
+        xOffset = visX - this.swerve.getPose().getMeasureX().in(Meters);
+        yOffset = visY - this.swerve.getPose().getMeasureY().in(Meters);
     }
 
     public void updatePose() {
@@ -73,73 +63,55 @@ public class PositionData {
         }
         this.allianceFlip.set(allianceFlipped);
         pidgeonYaw.set(this.swerve.getGyroRotation3d().getZ() * (180/Math.PI));
-        if (LimelightHelpers.getTV(LimelightNames.limelight4AFront) && !LimelightHelpers.getTV(LimelightNames.limelight3ALeft)) {
-            if (DriverStation.getAlliance().get() == Alliance.Blue) {
-                PoseEstimate currentPos = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LimelightNames.limelight4AFront);
-                Pose p = new Pose();
-                p.x = currentPos.pose.getMeasureX().in(Meters);
-                p.y = currentPos.pose.getMeasureY().in(Meters);
-                p.yaw = currentPos.pose.getRotation().getDegrees();
-                
-                if (!firstPosRecieved) {
-                    lastX = p.x;
-                    lastY = p.y;
-                    firstPosRecieved = !firstPosRecieved;
-                    findOffset();
-                    this.x = p.x;
-                    this.y = p.y;
-                    this.yaw = p.yaw;
-                    return;
-                }
-                if ((p.x - lastX < 0.75) && (p.x - lastX > -0.75) && (p.y - lastY < 0.75) && (p.y - lastY > -0.75)) {
-                    lastX = p.x;
-                    lastY = p.y;
-                    findOffset();
-                    this.x = p.x;
-                    this.y = p.y;
-                    this.yaw = p.yaw;
-                    return;
-                }
+        boolean frontVis = LimelightHelpers.getTV(LimelightNames.limelight4AFront);
+        boolean leftVis = LimelightHelpers.getTV(LimelightNames.limelight3ALeft);
+        boolean isRedAlliance = DriverStation.getAlliance().get() == Alliance.Red;
+        int validTargets = 0;
+        PoseEstimate frontPose = null;
+        PoseEstimate leftPose = null;
+        double estimatedX = 0;
+        double estimatedY = 0;
+        if (frontVis) {
+            validTargets += 1;
+            if (isRedAlliance) {
+                frontPose = LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(LimelightNames.limelight4AFront);
             }
-            else if (DriverStation.getAlliance().get() == Alliance.Red) {
-                PoseEstimate currentPos = LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(LimelightNames.limelight4AFront);
-                Pose p = new Pose();
-                p.x = currentPos.pose.getMeasureX().in(Meters);
-                p.y = currentPos.pose.getMeasureY().in(Meters);
-                p.yaw = currentPos.pose.getRotation().getDegrees();
-
-                if (p.x == 0.00000) {
-                    return;
-                }
-                
-                // if (!firstPosRecieved && p.x != 0.00000) {
-                    lastX = p.x;
-                    lastY = p.y;
-                    firstPosRecieved = !firstPosRecieved;
-                    findOffset();
-                    this.x = p.x;
-                    this.y = p.y;
-                    this.yaw = p.yaw + correction;
-
-                    return;
-                // }
-                // if ((p.x - lastX < 0.75) && (p.x - lastX > -0.75) && (p.y - lastY < 0.75) && (p.y - lastY > -0.75) && (p.x != 0.00000)) {
-                //     lastX = p.x;
-                //     lastY = p.y;
-                //     findOffset();
-                //     this.x = p.x;
-                //     this.y = p.y;
-                //     this.yaw = p.yaw + correction;
-                //     return;
-                // }
+            else {
+                frontPose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LimelightNames.limelight4AFront);
             }
+        }
+        if (leftVis) {
+            validTargets += 1;
+            if (isRedAlliance) {
+                leftPose = LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(LimelightNames.limelight3ALeft);
+            }
+            else {
+                leftPose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LimelightNames.limelight3ALeft);
+            }
+        }
+        if (leftVis || frontVis) {
+            if (frontVis) {
+                estimatedX += frontPose.pose.getMeasureX().in(Meters);
+                estimatedY += frontPose.pose.getMeasureY().in(Meters);
+            }
+            if (leftVis) {
+                estimatedX += leftPose.pose.getMeasureX().in(Meters);
+                estimatedY += leftPose.pose.getMeasureY().in(Meters);
+            }
+            estimatedX = estimatedX / validTargets;
+            estimatedY = estimatedY / validTargets;
 
+            this.x = estimatedX;
+            this.y = estimatedY;
+            this.yaw = this.swerve.getGyroRotation3d().getZ() * 180/Math.PI;
+            Pose2d newPose = new Pose2d(estimatedX, estimatedY, this.swerve.getYaw());
+            swerve.resetOdometry(newPose);
+
+            return;
         }
 
-        
-
-        this.x = -this.swerve.getPose().getMeasureX().in(Meters) + xOffset;
-        this.y = -this.swerve.getPose().getMeasureY().in(Meters) + yOffset;
+        this.x = this.swerve.getPose().getMeasureX().in(Meters) + xOffset;
+        this.y = this.swerve.getPose().getMeasureY().in(Meters) + yOffset;
         this.yaw = this.swerve.getGyroRotation3d().getZ() * (180/Math.PI) + correction;
     }
 
