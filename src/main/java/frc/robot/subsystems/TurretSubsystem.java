@@ -35,7 +35,7 @@ public class TurretSubsystem extends SubsystemBase {
 
   final DoublePublisher rotateInfo;
 
-  public boolean active = false;
+  public static boolean active = false;
   
 
   /** Creates a new TurretSubsystem. */
@@ -121,7 +121,7 @@ public void logMotor(SysIdRoutineLog log) {
 
 public Command shooterControl() {
   return runOnce(
-    () -> this.active = !this.active
+    () -> TurretSubsystem.active = !TurretSubsystem.active
   );
 }
 

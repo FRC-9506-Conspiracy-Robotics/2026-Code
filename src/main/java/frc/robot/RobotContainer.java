@@ -72,15 +72,15 @@ public class RobotContainer {
   public final PositionData positionData = new PositionData(swerveDrive);
 
   private AutoTrackCommand autoTrackCommand = new AutoTrackCommand(turret, positionData);
-  private LoadShooter loadShooter = new LoadShooter(spindex, handoff, intake);
+  private LoadShooter loadShooter = new LoadShooter(spindex, handoff);
 
 
   public RobotContainer() {
 
-    NamedCommands.registerCommand("Load Shooter", loadShooter);
-    NamedCommands.registerCommand("Auto Track", autoTrackCommand);
-    NamedCommands.registerCommand("Deploy Intake", this.intake.deployIntake());
-    NamedCommands.registerCommand("Reload", this.intake.reload());
+    NamedCommands.registerCommand("Load Shooter", loadShooter); // uses spindex and handoff
+    NamedCommands.registerCommand("Deploy Intake", this.intake.deployIntake()); // uses intake
+    NamedCommands.registerCommand("Reload", this.intake.reload()); // uses intake
+    NamedCommands.registerCommand("Toggle Shooter", this.turret.shooterControl()); // uses turret
     
     configureBindings();
 

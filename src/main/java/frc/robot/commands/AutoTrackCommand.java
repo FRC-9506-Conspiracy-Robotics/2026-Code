@@ -141,7 +141,7 @@ public class AutoTrackCommand extends Command {
     volts = 12;
   }
 
-  if (!this.turret.active) {
+  if (!TurretSubsystem.active) {
     volts = 0;
   }
 
