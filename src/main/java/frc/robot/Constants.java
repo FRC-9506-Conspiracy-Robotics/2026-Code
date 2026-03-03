@@ -58,6 +58,14 @@ public final class Constants {
         public static final int spindexCurrentLimit = 40;
     }
 
+    public static class ClimberConstants {
+        public static final int climberMotorID = 22;
+
+        public static final int climberCurrentLimit = 40;
+
+        public static final int climberGearRatio = 36;
+    }
+
     public static class LimelightNames {
         public static final String limelight4AFront = "limelight-afouri";
         public static final String limelight3ALeft = "limelight-athree";

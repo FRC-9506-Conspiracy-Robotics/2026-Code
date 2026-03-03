@@ -108,6 +108,7 @@ public class RobotContainer {
     mDriverController.rightBumper().whileTrue(this.handoff.unjamShooter());
     mDriverController.x().whileTrue(this.intake.reload());
     mDriverController.y().onTrue(this.intake.deployIntake());
+    mDriverController.leftBumper().onTrue(this.turret.shooterControl());
 
     
 

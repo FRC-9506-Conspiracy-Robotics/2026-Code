@@ -34,6 +34,8 @@ public class TurretSubsystem extends SubsystemBase {
   // private final StatusSignal<Angle> neckPositionSignal = neckMotor.getPosition();
 
   final DoublePublisher rotateInfo;
+
+  public boolean active = false;
   
 
   /** Creates a new TurretSubsystem. */
@@ -117,7 +119,11 @@ public void logMotor(SysIdRoutineLog log) {
     .angularVelocity(shooterLeaderMotor.getVelocity().getValue());
 }
 
-
+public Command shooterControl() {
+  return runOnce(
+    () -> this.active = !this.active
+  );
+}
 
   private final SysIdRoutine sysIdRoutine =
       new SysIdRoutine(

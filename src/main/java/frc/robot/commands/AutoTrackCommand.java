@@ -18,6 +18,9 @@ import frc.robot.Constants.TurretConstants;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class AutoTrackCommand extends Command {
+  double targetX = 4.6;
+  double targetY = 4;
+
   final DoublePublisher desiredRotData;
   final DoublePublisher currentRotData;
   final DoublePublisher poseX;
@@ -58,9 +61,24 @@ public class AutoTrackCommand extends Command {
   public void execute() {
 
     Pose p = this.positionData.getPose();
+
+    if (p.x < 4.6) {
+      targetX = 4.6;
+      targetY = 4;
+    }
+    else if (p.x > 5.2 && p.y > 4.1) {
+      targetX = 4.6;
+      targetY = 6;
+    }
+    else if (p.x > 5.2 && p.y < 3.9) {
+      targetX = 4.6;
+      targetY = 2;
+    }
+
+    
     double robotAngle = p.yaw;
-    double xFromHub = 4.6 - p.x;
-    double yFromHub = 4 - p.y;
+    double xFromHub = targetX - p.x;
+    double yFromHub = targetY - p.y;
     double distanceFromTarget = Math.sqrt((xFromHub * xFromHub) + (yFromHub * yFromHub));
 
     // get angle in radians
@@ -122,6 +140,11 @@ public class AutoTrackCommand extends Command {
   if (volts > 12) {
     volts = 12;
   }
+
+  if (!this.turret.active) {
+    volts = 0;
+  }
+
   this.turret.shooterLeaderMotor.setVoltage(volts);
 
   // BangBangController bb_Controller = new BangBangController();

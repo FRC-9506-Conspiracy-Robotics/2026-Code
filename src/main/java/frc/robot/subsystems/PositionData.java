@@ -19,11 +19,6 @@ import swervelib.SwerveDrive;
 
 /** Add your docs here. */
 public class PositionData {
-    double xOffset = 0;
-    double yOffset = 0;
-    double lastX = 0;
-    double lastY = 0;
-    boolean firstPosRecieved = false;
 
     final DoublePublisher pidgeonYaw;
     final DoublePublisher allianceFlip;
@@ -49,19 +44,8 @@ public class PositionData {
         this.allianceFlip = table.getDoubleTopic("auto-track-command/alliance-flipped").publish();
     }
 
-    private void findOffset(double visX, double visY) {
-        xOffset = visX - this.swerve.getPose().getMeasureX().in(Meters);
-        yOffset = visY - this.swerve.getPose().getMeasureY().in(Meters);
-    }
-
     public void updatePose() {
-        double correction = 0;
-        double allianceFlipped = 1;
-        if (DriverStation.getAlliance().get() == Alliance.Red) {
-            correction = 0;
-            allianceFlipped = -1;
-        }
-        this.allianceFlip.set(allianceFlipped);
+        
         pidgeonYaw.set(this.swerve.getGyroRotation3d().getZ() * (180/Math.PI));
         boolean frontVis = LimelightHelpers.getTV(LimelightNames.limelight4AFront);
         boolean leftVis = LimelightHelpers.getTV(LimelightNames.limelight3ALeft);
@@ -110,9 +94,9 @@ public class PositionData {
             return;
         }
 
-        this.x = this.swerve.getPose().getMeasureX().in(Meters) + xOffset;
-        this.y = this.swerve.getPose().getMeasureY().in(Meters) + yOffset;
-        this.yaw = this.swerve.getGyroRotation3d().getZ() * (180/Math.PI) + correction;
+        this.x = this.swerve.getPose().getMeasureX().in(Meters);
+        this.y = this.swerve.getPose().getMeasureY().in(Meters);
+        this.yaw = this.swerve.getGyroRotation3d().getZ() * (180/Math.PI);
     }
 
     public Pose getPose() {
