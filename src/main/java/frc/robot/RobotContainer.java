@@ -79,7 +79,7 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("Load Shooter", loadShooter); // uses spindex and handoff
     NamedCommands.registerCommand("Deploy Intake", this.intake.deployIntake()); // uses intake
-    NamedCommands.registerCommand("Reload", this.intake.reload()); // uses intake
+    NamedCommands.registerCommand("Reload", this.intake.toggleReload()); // uses intake
     NamedCommands.registerCommand("Toggle Shooter", this.turret.shooterControl()); // uses turret
     
     configureBindings();
@@ -106,7 +106,7 @@ public class RobotContainer {
 
     mDriverController.rightTrigger().whileTrue(loadShooter);
     mDriverController.rightBumper().whileTrue(this.handoff.unjamShooter());
-    mDriverController.x().whileTrue(this.intake.reload());
+    mDriverController.x().onTrue(this.intake.toggleReload());
     mDriverController.y().onTrue(this.intake.deployIntake());
     mDriverController.leftBumper().onTrue(this.turret.shooterControl());
 

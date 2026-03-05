@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 
 
+import edu.wpi.first.math.controller.BangBangController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
@@ -44,10 +45,27 @@ public class AutoTrackCommand extends Command {
     this.poseYaw = table.getDoubleTopic("turret-auto-track/pyaw").publish();
   }
 
+  private class VelocityVector {
+    private double velX;
+    private double velY;
+  }
+
   private double getVelocity(double angle, double d) {
     double g = 9.81;
-    double h = 1.778;
+    double h = 1.5;
     return Math.sqrt((-g * d * d) / (2 * Math.cos(angle) * Math.cos(angle) * (h - d * Math.tan(angle))));
+  }
+
+  private VelocityVector getVelVector(double velocity, double xToHub, double yToHub, double robotVelX, double robotVelY, double angler) {
+    double fieldVelocity = velocity * Math.cos(angler);
+    double angleToHub = (Math.atan2(yToHub, -xToHub));
+    VelocityVector staticVector = new VelocityVector();
+    staticVector.velX = fieldVelocity * Math.cos(angleToHub);
+    staticVector.velY = fieldVelocity * Math.sin(angleToHub);
+    VelocityVector adjustedVector = new VelocityVector();
+    adjustedVector.velX = staticVector.velX + robotVelX;
+    adjustedVector.velY = staticVector.velY - robotVelY;
+    return adjustedVector;
   }
 
   // Called when the command is initially scheduled.
@@ -86,6 +104,7 @@ public class AutoTrackCommand extends Command {
     
     double desiredAnglerAngle = (83 - (distanceFromTarget * 4)) * (Math.PI / 180);
 
+
     if (desiredAnglerAngle < (50 * (Math.PI / 180))) {
       desiredAnglerAngle = (50 * (Math.PI / 180));
     }
@@ -93,20 +112,25 @@ public class AutoTrackCommand extends Command {
       desiredAnglerAngle = (75 * (Math.PI / 180));
     }
 
-    double desiredRotation = ((Math.atan2(yFromHub, -xFromHub) * (180 / Math.PI)) + robotAngle - 90) / 360;
+    VelocityVector newVelVector = getVelVector(getVelocity(desiredAnglerAngle, distanceFromTarget), xFromHub, yFromHub, p.velX, p.velY, desiredAnglerAngle);
+
+    double newVel = Math.sqrt(Math.pow(newVelVector.velX, 2) + Math.pow(newVelVector.velY, 2)) / Math.cos(desiredAnglerAngle);
+    
+
+    double desiredRotation = ((Math.atan2(newVelVector.velX, -newVelVector.velY) * (180 / Math.PI)) + robotAngle + 180) / 360;
     double currentRotation = this.turret.getNeckPosition();
     
     
 
-    if (desiredRotation < -0.012) {
+    if (desiredRotation < -0.03) {
       desiredRotation += 1;
     }
-    else if (desiredRotation > 1.012) {
+    else if (desiredRotation > 1.03) {
       desiredRotation += -1;
     }
 
     double rotationError = desiredRotation - currentRotation;
-    double kP = 4;
+    double kP = 7;
     double controlSignal = kP * rotationError;
     if (controlSignal > 0.5) {
       controlSignal = 0.5;
@@ -118,7 +142,7 @@ public class AutoTrackCommand extends Command {
    this.turret.neckMotor.set(controlSignal);
 
     double anglerError = desiredAnglerAngle - currentAnglerAngle;
-    double anglerkP = 1.5;
+    double anglerkP = 2.5;
     double anglerSignal = anglerkP * -anglerError;
     if (anglerSignal > 1) {
       anglerSignal = 1;
@@ -136,7 +160,7 @@ public class AutoTrackCommand extends Command {
   this.poseYaw.set(p.yaw);
 
   SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(TurretConstants.shooterkS, TurretConstants.shooterkV, TurretConstants.shooterkA);
-  double volts = feedforward.calculate(getVelocity(currentAnglerAngle, distanceFromTarget) * 1.7 / TurretConstants.circumferenceOfWheel);
+  double volts = feedforward.calculate(newVel * 1.9 / TurretConstants.circumferenceOfWheel);
   if (volts > 12) {
     volts = 12;
   }
@@ -148,8 +172,10 @@ public class AutoTrackCommand extends Command {
   this.turret.shooterLeaderMotor.setVoltage(volts);
 
   // BangBangController bb_Controller = new BangBangController();
-  // this.turret.shooterLeaderMotor.set(bb_Controller.calculate(this.turret.shooterLeaderMotor.getVelocity().refresh().getValueAsDouble(), getVelocity(currentAnglerAngle, distanceFromTarget) / TurretConstants.circumferenceOfWheel));
 
+  // if (TurretSubsystem.active) {
+  //   this.turret.shooterLeaderMotor.set(bb_Controller.calculate(this.turret.shooterLeaderMotor.getVelocity().refresh().getValueAsDouble(), newVel / TurretConstants.circumferenceOfWheel));
+  // }
   }
 
   // Called once the command ends or is interrupted.

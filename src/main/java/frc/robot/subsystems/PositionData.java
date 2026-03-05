@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -26,6 +27,8 @@ public class PositionData {
     double x = 0;
     double y = 0;
     double yaw = 0;
+    double velX = 0;
+    double velY = 0;
 
     final SwerveDrive swerve;
 
@@ -33,6 +36,8 @@ public class PositionData {
         public double x;
         public double y;
         public double yaw;
+        public double velX = 0;
+        public double velY = 0;
     }
 
     public PositionData(
@@ -47,6 +52,11 @@ public class PositionData {
     public void updatePose() {
         
         pidgeonYaw.set(this.swerve.getGyroRotation3d().getZ() * (180/Math.PI));
+
+        ChassisSpeeds velocity = this.swerve.getRobotVelocity();
+        this.velX = velocity.vxMetersPerSecond;
+        this.velY = velocity.vyMetersPerSecond;
+
         boolean frontVis = LimelightHelpers.getTV(LimelightNames.limelight4AFront);
         boolean leftVis = LimelightHelpers.getTV(LimelightNames.limelight3ALeft);
         boolean isRedAlliance = DriverStation.getAlliance().get() == Alliance.Red;
@@ -63,6 +73,10 @@ public class PositionData {
             else {
                 frontPose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LimelightNames.limelight4AFront);
             }
+            if (frontPose.pose.getMeasureX().in(Meters) == 0 && frontPose.pose.getMeasureY().in(Meters) == 0) {
+                validTargets += -1;
+                frontVis = false;
+            }
         }
         if (leftVis) {
             validTargets += 1;
@@ -71,6 +85,10 @@ public class PositionData {
             }
             else {
                 leftPose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LimelightNames.limelight3ALeft);
+            }
+            if (leftPose.pose.getMeasureX().in(Meters) == 0 && leftPose.pose.getMeasureY().in(Meters) == 0) {
+                validTargets += -1;
+                leftVis = false;
             }
         }
         if (leftVis || frontVis) {
@@ -104,6 +122,8 @@ public class PositionData {
         p.x = this.x;
         p.y = this.y;
         p.yaw = this.yaw;
+        p.velX = this.velX;
+        p.velY = this.velY;
         return p;
     }
 

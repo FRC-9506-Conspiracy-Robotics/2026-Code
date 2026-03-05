@@ -29,6 +29,8 @@ public class IntakeSubsystem extends SubsystemBase {
   public final RelativeEncoder deployEncoder = deployLeaderMotor.getEncoder();
   public final RelativeEncoder followerEncoder = deployFollowerMotor.getEncoder();
 
+  public static boolean reloading = false;
+
   final DoublePublisher deployInfo;
 
   public boolean desiredPosition = false;
@@ -81,15 +83,21 @@ public class IntakeSubsystem extends SubsystemBase {
       );
   }
 
-  public Command reload() {
-    return startEnd(
-      () -> intakeMotor.set(-1),
-      () -> intakeMotor.set(0)
-      );
+  public Command toggleReload() {
+    return runOnce(
+      () -> IntakeSubsystem.reloading = !IntakeSubsystem.reloading
+    );
   }
+
+  
 
   @Override
   public void periodic() {
     this.deployInfo.set(followerEncoder.getPosition());
+    if (IntakeSubsystem.reloading) {
+      intakeMotor.set(-1);
+      return;
+    }
+    intakeMotor.set(0);
   }
 }
