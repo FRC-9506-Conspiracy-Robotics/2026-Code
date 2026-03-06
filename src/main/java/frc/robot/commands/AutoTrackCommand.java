@@ -207,7 +207,9 @@ else if (volts < -12) {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-
+    this.turret.neckMotor.set(0);
+    this.turret.anglerMotor.set(0);
+    this.turret.shooterLeaderMotor.set(0);
   }
 
   // Returns true when the command should end.
