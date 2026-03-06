@@ -42,6 +42,7 @@ public class IntakeSubsystem extends SubsystemBase {
   public boolean DEPLOYED = true;
   public boolean STOWED =  false;
   public double deploySpeed = 0.35;
+  public boolean unjamming = false;
   public static boolean deploying = false;
 
   public IntakeSubsystem() {
@@ -91,6 +92,15 @@ public class IntakeSubsystem extends SubsystemBase {
       () -> intakeMotor.set(0)
       );
   }
+  
+  public Command unjamIntake() {
+    return startEnd(
+      () -> {intakeMotor.set(1);
+            this.unjamming = true;},
+      () -> {intakeMotor.set(0);
+            this.unjamming = false;}
+      );
+  }
 
   public Command toggleReload() {
     return runOnce(
@@ -101,7 +111,8 @@ public class IntakeSubsystem extends SubsystemBase {
   public Command toggleDeploy() {
     return runOnce(
       () -> {this.desiredPosition = !this.desiredPosition;
-            this.deploySpeed = 0.35;}
+            this.deploySpeed = 0.35;
+            this.unjamming = false;}
 
     );
   }
@@ -113,10 +124,11 @@ public class IntakeSubsystem extends SubsystemBase {
     this.deployInfo.set(followerEncoder.getPosition());
     this.isReloading.set(IntakeSubsystem.reloading);
 
-    if (IntakeSubsystem.reloading) {
+    if (IntakeSubsystem.reloading && !this.unjamming) {
       intakeMotor.set(-1);
     }
-    else {
+    
+    else if (!this.unjamming) {
       intakeMotor.set(0);
     }
 

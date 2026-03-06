@@ -111,6 +111,7 @@ public class RobotContainer {
     mDriverController.rightBumper().whileTrue(this.handoff.unjamShooter());
     mDriverController.x().onTrue(this.intake.toggleReload());
     mDriverController.y().onTrue(this.intake.toggleDeploy());
+    mDriverController.a().whileTrue(this.intake.unjamIntake());
     mDriverController.leftBumper().onTrue(this.turret.shooterControl());
     mDriverController.povUp().whileTrue(this.climber.raiseClimber());
     mDriverController.povDown().whileTrue(this.climber.lowerClimber());

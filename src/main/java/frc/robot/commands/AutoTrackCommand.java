@@ -115,7 +115,7 @@ public class AutoTrackCommand extends Command {
       desiredAnglerAngle = (75 * (Math.PI / 180));
     }
 
-    if (p.x > 3.9 && p.x < 5.2) {
+    if (p.x > 3.6 && p.x < 5.5) {
       desiredAnglerAngle = (75 * (Math.PI / 180));
     }
     else if (p.x < 13 && p.x > 11) {

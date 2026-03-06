@@ -42,7 +42,7 @@ public class LoadShooter extends Command {
     this.handoff.shooterHandoffMotor.set(0.75);
     this.intake.intakeMotor.set(-1);
     
-    if (Utils.getCurrentTimeSeconds() - runTime > bumpPeriod + 0.15) {
+    if (Utils.getCurrentTimeSeconds() - runTime > bumpPeriod + 0.4) {
       this.intake.desiredPosition = this.intake.DEPLOYED;
       this.runTime = Utils.getCurrentTimeSeconds();
     }
