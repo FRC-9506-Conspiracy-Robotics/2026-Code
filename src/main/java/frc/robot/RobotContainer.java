@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.DriverConstants;
 import frc.robot.commands.AutoTrackCommand;
 import frc.robot.commands.LoadShooter;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.HandoffSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.PositionData;
@@ -69,6 +70,7 @@ public class RobotContainer {
   private final IntakeSubsystem intake = new IntakeSubsystem();
   private final SpindexSubsystem spindex = new SpindexSubsystem();
   private final TurretSubsystem turret = new TurretSubsystem();
+  private final ClimberSubsystem climber = new ClimberSubsystem();
   public final PositionData positionData = new PositionData(swerveDrive);
 
   private AutoTrackCommand autoTrackCommand = new AutoTrackCommand(turret, positionData);
@@ -81,6 +83,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("Deploy Intake", this.intake.deployIntake()); // uses intake
     NamedCommands.registerCommand("Reload", this.intake.toggleReload()); // uses intake
     NamedCommands.registerCommand("Toggle Shooter", this.turret.shooterControl()); // uses turret
+    NamedCommands.registerCommand("Auto Track", autoTrackCommand);
     
     configureBindings();
 
@@ -109,6 +112,8 @@ public class RobotContainer {
     mDriverController.x().onTrue(this.intake.toggleReload());
     mDriverController.y().onTrue(this.intake.deployIntake());
     mDriverController.leftBumper().onTrue(this.turret.shooterControl());
+    mDriverController.povUp().whileTrue(this.climber.raiseClimber());
+    mDriverController.povDown().whileTrue(this.climber.lowerClimber());
 
     
 

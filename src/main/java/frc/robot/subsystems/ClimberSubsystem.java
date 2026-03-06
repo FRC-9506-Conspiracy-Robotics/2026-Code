@@ -10,10 +10,13 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimberConstants;
 
 public class ClimberSubsystem extends SubsystemBase {
+  private boolean rising = false;
+  private boolean falling = false;
 
   public final TalonFX climberMotor = new TalonFX(ClimberConstants.climberMotorID, "rio");
   /** Creates a new ClimberSubsystem. */
@@ -33,8 +36,30 @@ public class ClimberSubsystem extends SubsystemBase {
     climberMotor.getConfigurator().apply(climberConfig);
   }
 
+  public Command raiseClimber() {
+    return startEnd(
+      () -> this.rising = true, 
+      () -> this.rising = false
+      );
+  }
+  public Command lowerClimber() {
+    return startEnd(
+      () -> this.falling = true,
+      () -> this.falling = false
+      );
+  }
+
   @Override
   public void periodic() {
+    if (climberMotor.getPosition().refresh().getValueAsDouble() > -110 && rising) {
+      climberMotor.set(-0.2);
+    }
+    else if (climberMotor.getPosition().refresh().getValueAsDouble() < -5 && falling) {
+      climberMotor.set(0.5);
+    }
+    else {
+      climberMotor.set(0);
+    }
     // This method will be called once per scheduler run
   }
 }

@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -18,12 +19,15 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 public class IntakeSubsystem extends SubsystemBase {
   public final TalonFX intakeMotor = new TalonFX(IntakeConstants.intakeID, "rio");
+  public final TalonFX intakeFollowerMotor = new TalonFX(IntakeConstants.intakeFollowerID, "rio");
   public final SparkMax deployLeaderMotor = new SparkMax(IntakeConstants.deployLeaderID, MotorType.kBrushless);
   private final SparkMax deployFollowerMotor = new SparkMax(IntakeConstants.deployFollowerID, MotorType.kBrushless);
   public final RelativeEncoder deployEncoder = deployLeaderMotor.getEncoder();
@@ -32,6 +36,7 @@ public class IntakeSubsystem extends SubsystemBase {
   public static boolean reloading = false;
 
   final DoublePublisher deployInfo;
+  final BooleanPublisher isReloading;
 
   public boolean desiredPosition = false;
   public boolean DEPLOYED = true;
@@ -52,6 +57,8 @@ public class IntakeSubsystem extends SubsystemBase {
       );
 
     intakeMotor.getConfigurator().apply(intakeConfig);
+    intakeFollowerMotor.getConfigurator().apply(intakeConfig);
+    intakeFollowerMotor.setControl(new Follower(IntakeConstants.intakeID, MotorAlignmentValue.Opposed));
 
     SparkMaxConfig deployLeaderConfig = new SparkMaxConfig();
     deployLeaderConfig
@@ -70,6 +77,7 @@ public class IntakeSubsystem extends SubsystemBase {
     NetworkTableInstance inst = NetworkTableInstance.getDefault();
     NetworkTable table = inst.getTable("datatable");
     this.deployInfo = table.getDoubleTopic("encoder-info/deploy-motor").publish();
+    this.isReloading = table.getBooleanTopic("status/reloading").publish();
   }
 
   public Command deployIntake() { // Deploys AND retracts intake
@@ -94,6 +102,7 @@ public class IntakeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     this.deployInfo.set(followerEncoder.getPosition());
+    this.isReloading.set(IntakeSubsystem.reloading);
     if (IntakeSubsystem.reloading) {
       intakeMotor.set(-1);
       return;

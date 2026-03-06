@@ -6,7 +6,6 @@ package frc.robot.commands;
 
 
 
-import edu.wpi.first.math.controller.BangBangController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
@@ -85,11 +84,11 @@ public class AutoTrackCommand extends Command {
       targetY = 4;
     }
     else if (p.x > 5.2 && p.y > 4.1) {
-      targetX = 4.6;
+      targetX = 2.5;
       targetY = 6;
     }
     else if (p.x > 5.2 && p.y < 3.9) {
-      targetX = 4.6;
+      targetX = 2.5;
       targetY = 2;
     }
 

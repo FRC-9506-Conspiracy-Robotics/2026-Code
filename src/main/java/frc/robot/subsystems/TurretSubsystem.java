@@ -14,6 +14,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -34,6 +35,7 @@ public class TurretSubsystem extends SubsystemBase {
   // private final StatusSignal<Angle> neckPositionSignal = neckMotor.getPosition();
 
   final DoublePublisher rotateInfo;
+  final BooleanPublisher isShooting;
 
   public static boolean active = false;
   
@@ -43,6 +45,7 @@ public class TurretSubsystem extends SubsystemBase {
     NetworkTableInstance inst = NetworkTableInstance.getDefault();
     NetworkTable table = inst.getTable("datatable");
     this.rotateInfo = table.getDoubleTopic("turret/rotate-angle").publish();
+    this.isShooting = table.getBooleanTopic("status/shooting").publish();
     // configure the shooterFollowerMotor to follow the leader
 
     TalonFXConfiguration neckConfig = new TalonFXConfiguration();
@@ -152,6 +155,10 @@ public Command shooterControl() {
   @Override
   public void periodic() {
     this.rotateInfo.set(getNeckPosition());
+    this.isShooting.set(TurretSubsystem.active);
+    if (!TurretSubsystem.active) {
+      shooterLeaderMotor.set(0);
+    }
 
         // This method will be called once per scheduler run
 
