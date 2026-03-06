@@ -80,7 +80,7 @@ public class RobotContainer {
   public RobotContainer() {
 
     NamedCommands.registerCommand("Load Shooter", loadShooter); // uses spindex and handoff
-    NamedCommands.registerCommand("Deploy Intake", this.intake.deployIntake()); // uses intake
+    NamedCommands.registerCommand("Deploy Intake", this.intake.toggleDeploy()); // uses intake
     NamedCommands.registerCommand("Reload", this.intake.toggleReload()); // uses intake
     NamedCommands.registerCommand("Toggle Shooter", this.turret.shooterControl()); // uses turret
     NamedCommands.registerCommand("Auto Track", autoTrackCommand);
@@ -110,7 +110,7 @@ public class RobotContainer {
     mDriverController.rightTrigger().whileTrue(loadShooter);
     mDriverController.rightBumper().whileTrue(this.handoff.unjamShooter());
     mDriverController.x().onTrue(this.intake.toggleReload());
-    mDriverController.y().onTrue(this.intake.deployIntake());
+    mDriverController.y().onTrue(this.intake.toggleDeploy());
     mDriverController.leftBumper().onTrue(this.turret.shooterControl());
     mDriverController.povUp().whileTrue(this.climber.raiseClimber());
     mDriverController.povDown().whileTrue(this.climber.lowerClimber());

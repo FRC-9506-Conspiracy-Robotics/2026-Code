@@ -26,6 +26,8 @@ public class AutoTrackCommand extends Command {
   final DoublePublisher poseX;
   final DoublePublisher poseY;
   final DoublePublisher poseYaw;
+  final DoublePublisher feedforwardData;
+  final DoublePublisher velocityData;
   private TurretSubsystem turret;
   private PositionData positionData;
   /** Creates a new AutoTrackCommand. */
@@ -42,6 +44,8 @@ public class AutoTrackCommand extends Command {
     this.poseX = table.getDoubleTopic("turret-auto-track/px").publish();
     this.poseY = table.getDoubleTopic("turret-auto-track/py").publish();
     this.poseYaw = table.getDoubleTopic("turret-auto-track/pyaw").publish();
+    this.feedforwardData = table.getDoubleTopic("shooter-signals/feedforward-signal").publish();
+    this.velocityData = table.getDoubleTopic("shooter-signals/velocity-signal").publish();
   }
 
   private class VelocityVector {
@@ -111,6 +115,13 @@ public class AutoTrackCommand extends Command {
       desiredAnglerAngle = (75 * (Math.PI / 180));
     }
 
+    if (p.x > 3.9 && p.x < 5.2) {
+      desiredAnglerAngle = (75 * (Math.PI / 180));
+    }
+    else if (p.x < 13 && p.x > 11) {
+      desiredAnglerAngle = (75 * (Math.PI / 180));
+    }
+
     VelocityVector newVelVector = getVelVector(getVelocity(desiredAnglerAngle, distanceFromTarget), xFromHub, yFromHub, p.velX, p.velY, desiredAnglerAngle);
 
     double newVel = Math.sqrt(Math.pow(newVelVector.velX, 2) + Math.pow(newVelVector.velY, 2)) / Math.cos(desiredAnglerAngle);
@@ -158,15 +169,31 @@ public class AutoTrackCommand extends Command {
   this.poseY.set(p.y);
   this.poseYaw.set(p.yaw);
 
+  double shooterTuning = 1.9;
+
   SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(TurretConstants.shooterkS, TurretConstants.shooterkV, TurretConstants.shooterkA);
-  double volts = feedforward.calculate(newVel * 1.9 / TurretConstants.circumferenceOfWheel);
-  if (volts > 12) {
-    volts = 12;
-  }
+  double feedforwardSignal = feedforward.calculate(newVel * shooterTuning / TurretConstants.circumferenceOfWheel);
+
+  double velocityError = (newVel * shooterTuning / TurretConstants.circumferenceOfWheel) - this.turret.shooterLeaderMotor.getVelocity().refresh().getValueAsDouble();
+  double velocitykP = 0.01;
+  double velocitySignal = velocityError * velocitykP;
 
   if (!TurretSubsystem.active) {
-    volts = 0;
+    feedforwardSignal = 0;
+    velocitySignal = 0;
   }
+
+double volts = feedforwardSignal + velocitySignal;
+
+this.feedforwardData.set(feedforwardSignal);
+this.velocityData.set(velocitySignal);
+
+if (volts > 12) {
+  volts = 12;
+}
+else if (volts < -12) {
+  volts = -12;
+}
 
   this.turret.shooterLeaderMotor.setVoltage(volts);
 

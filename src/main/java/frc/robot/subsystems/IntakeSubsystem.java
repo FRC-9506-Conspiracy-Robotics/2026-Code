@@ -97,16 +97,35 @@ public class IntakeSubsystem extends SubsystemBase {
     );
   }
 
+  public Command toggleDeploy() {
+    return runOnce(
+      () -> this.desiredPosition = !this.desiredPosition
+    );
+  }
+
   
 
   @Override
   public void periodic() {
     this.deployInfo.set(followerEncoder.getPosition());
     this.isReloading.set(IntakeSubsystem.reloading);
+
     if (IntakeSubsystem.reloading) {
       intakeMotor.set(-1);
-      return;
     }
-    intakeMotor.set(0);
+    else {
+      intakeMotor.set(0);
+    }
+
+    if (desiredPosition == DEPLOYED && this.deployEncoder.getPosition() > -8.5) {
+      deployLeaderMotor.set(-0.5);
+    }
+    else if (desiredPosition == STOWED && this.deployEncoder.getPosition() < -0.5) {
+      deployLeaderMotor.set(0.5);
+    }
+    else {
+      deployLeaderMotor.set(0);
+    }
+
   }
 }

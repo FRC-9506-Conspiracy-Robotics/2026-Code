@@ -40,7 +40,7 @@ public class SwerveSubsystem extends SubsystemBase {
     //create swerve object
     private final SwerveDrive swerveDrive;
     public SwerveSubsystem(File directory) {
-        SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH; //remember to change this to LOW before competition
+        SwerveDriveTelemetry.verbosity = TelemetryVerbosity.POSE; //remember to change this to LOW before competition
         //Attempts to initialize swerve drive using the given filepath throws error if files cannot be found
         try {
             swerveDrive = new SwerveParser(directory).createSwerveDrive(
