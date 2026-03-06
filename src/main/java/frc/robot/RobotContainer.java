@@ -74,7 +74,7 @@ public class RobotContainer {
   public final PositionData positionData = new PositionData(swerveDrive);
 
   private AutoTrackCommand autoTrackCommand = new AutoTrackCommand(turret, positionData);
-  private LoadShooter loadShooter = new LoadShooter(spindex, handoff);
+  private LoadShooter loadShooter = new LoadShooter(spindex, handoff, intake);
 
 
   public RobotContainer() {

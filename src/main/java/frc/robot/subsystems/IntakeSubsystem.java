@@ -41,6 +41,7 @@ public class IntakeSubsystem extends SubsystemBase {
   public boolean desiredPosition = false;
   public boolean DEPLOYED = true;
   public boolean STOWED =  false;
+  public double deploySpeed = 0.35;
   public static boolean deploying = false;
 
   public IntakeSubsystem() {
@@ -99,7 +100,9 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public Command toggleDeploy() {
     return runOnce(
-      () -> this.desiredPosition = !this.desiredPosition
+      () -> {this.desiredPosition = !this.desiredPosition;
+            this.deploySpeed = 0.35;}
+
     );
   }
 
@@ -117,11 +120,11 @@ public class IntakeSubsystem extends SubsystemBase {
       intakeMotor.set(0);
     }
 
-    if (desiredPosition == DEPLOYED && this.deployEncoder.getPosition() > -8.5) {
-      deployLeaderMotor.set(-0.5);
+    if (desiredPosition == DEPLOYED && this.deployEncoder.getPosition() > -7.5) {
+      deployLeaderMotor.set(-this.deploySpeed);
     }
     else if (desiredPosition == STOWED && this.deployEncoder.getPosition() < -0.5) {
-      deployLeaderMotor.set(0.5);
+      deployLeaderMotor.set(this.deploySpeed);
     }
     else {
       deployLeaderMotor.set(0);
