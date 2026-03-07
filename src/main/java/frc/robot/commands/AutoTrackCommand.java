@@ -115,20 +115,21 @@ public class AutoTrackCommand extends Command {
       desiredAnglerAngle = (75 * (Math.PI / 180));
     }
 
-    if (p.x > 3.6 && p.x < 5.5) {
+    if (p.x > 3.6 && p.x < 6.1) {
       desiredAnglerAngle = (75 * (Math.PI / 180));
     }
     else if (p.x < 13 && p.x > 11) {
       desiredAnglerAngle = (75 * (Math.PI / 180));
     }
 
+    
     VelocityVector newVelVector = getVelVector(getVelocity(desiredAnglerAngle, distanceFromTarget), xFromHub, yFromHub, p.velX, p.velY, desiredAnglerAngle);
 
     double newVel = Math.sqrt(Math.pow(newVelVector.velX, 2) + Math.pow(newVelVector.velY, 2)) / Math.cos(desiredAnglerAngle);
     
 
     double desiredRotation = ((Math.atan2(newVelVector.velX, -newVelVector.velY) * (180 / Math.PI)) + robotAngle + 180) / 360;
-    double currentRotation = this.turret.getNeckPosition();
+    double currentRotation = this.turret.getNeckPosition() + this.turret.turretOffset / 360;
     
     
 

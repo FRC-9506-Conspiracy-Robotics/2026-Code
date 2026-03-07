@@ -38,6 +38,7 @@ public class TurretSubsystem extends SubsystemBase {
   final BooleanPublisher isShooting;
 
   public static boolean active = false;
+  public double turretOffset = 0;
   
 
   /** Creates a new TurretSubsystem. */
@@ -115,6 +116,8 @@ public class TurretSubsystem extends SubsystemBase {
     shooterLeaderMotor.setVoltage(volts.in(Volts));
 }
 
+
+
 public void logMotor(SysIdRoutineLog log) {
   log.motor("shoooter-motor")
     .voltage(shooterLeaderMotor.getMotorVoltage().getValue())
@@ -125,6 +128,18 @@ public void logMotor(SysIdRoutineLog log) {
 public Command shooterControl() {
   return runOnce(
     () -> TurretSubsystem.active = !TurretSubsystem.active
+  );
+}
+
+public Command raiseOffset() {
+  return runOnce(
+    () -> this.turretOffset += -1
+  );
+}
+
+public Command lowerOffset() {
+  return runOnce(
+    () -> this.turretOffset += 1
   );
 }
 

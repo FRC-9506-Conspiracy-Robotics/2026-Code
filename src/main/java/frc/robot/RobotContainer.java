@@ -115,6 +115,8 @@ public class RobotContainer {
     mDriverController.leftBumper().onTrue(this.turret.shooterControl());
     mDriverController.povUp().whileTrue(this.climber.raiseClimber());
     mDriverController.povDown().whileTrue(this.climber.lowerClimber());
+    mDriverController.povRight().onTrue(this.turret.raiseOffset());
+    mDriverController.povLeft().onTrue(this.turret.lowerOffset());
 
     
 
