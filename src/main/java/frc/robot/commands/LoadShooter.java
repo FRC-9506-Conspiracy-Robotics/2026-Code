@@ -33,6 +33,12 @@ public class LoadShooter extends Command {
     this.runTime = Utils.getCurrentTimeSeconds();
     this.intake.desiredPosition = this.intake.DEPLOYED;
     this.intake.deploySpeed = 0.15;
+    if (IntakeSubsystem.outOfZone == true) {
+      this.bumpPeriod = 3;
+    }
+    else {
+      this.bumpPeriod = 1;
+    }
   }
 
   // Called every time the scheduler runs while the command is scheduled.

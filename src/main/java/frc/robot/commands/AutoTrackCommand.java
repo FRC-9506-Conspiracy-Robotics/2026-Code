@@ -11,6 +11,7 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.PositionData;
 import frc.robot.subsystems.PositionData.Pose;
 import frc.robot.subsystems.TurretSubsystem;
@@ -86,14 +87,17 @@ public class AutoTrackCommand extends Command {
     if (p.x < 4.6) {
       targetX = 4.6;
       targetY = 4;
+      IntakeSubsystem.outOfZone = false;
     }
     else if (p.x > 5.2 && p.y > 4.1) {
       targetX = 2.5;
       targetY = 6;
+      IntakeSubsystem.outOfZone = true;
     }
     else if (p.x > 5.2 && p.y < 3.9) {
       targetX = 2.5;
       targetY = 2;
+      IntakeSubsystem.outOfZone = true;
     }
 
     

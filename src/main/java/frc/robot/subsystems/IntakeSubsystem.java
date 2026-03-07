@@ -34,6 +34,7 @@ public class IntakeSubsystem extends SubsystemBase {
   public final RelativeEncoder followerEncoder = deployFollowerMotor.getEncoder();
 
   public static boolean reloading = false;
+  public static boolean outOfZone = false;
 
   final DoublePublisher deployInfo;
   final BooleanPublisher isReloading;
