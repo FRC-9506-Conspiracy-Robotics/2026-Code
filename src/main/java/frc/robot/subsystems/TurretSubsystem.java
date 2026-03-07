@@ -36,6 +36,7 @@ public class TurretSubsystem extends SubsystemBase {
 
   final DoublePublisher rotateInfo;
   final BooleanPublisher isShooting;
+  final DoublePublisher neckOffset;
 
   public static boolean active = false;
   public double turretOffset = 0;
@@ -47,6 +48,7 @@ public class TurretSubsystem extends SubsystemBase {
     NetworkTable table = inst.getTable("datatable");
     this.rotateInfo = table.getDoubleTopic("turret/rotate-angle").publish();
     this.isShooting = table.getBooleanTopic("status/shooting").publish();
+    this.neckOffset = table.getDoubleTopic("status/turret-angle").publish();
     // configure the shooterFollowerMotor to follow the leader
 
     TalonFXConfiguration neckConfig = new TalonFXConfiguration();
@@ -133,13 +135,13 @@ public Command shooterControl() {
 
 public Command raiseOffset() {
   return runOnce(
-    () -> this.turretOffset += -1
+    () -> this.turretOffset += -4
   );
 }
 
 public Command lowerOffset() {
   return runOnce(
-    () -> this.turretOffset += 1
+    () -> this.turretOffset += 4
   );
 }
 
@@ -171,6 +173,7 @@ public Command lowerOffset() {
   public void periodic() {
     this.rotateInfo.set(getNeckPosition());
     this.isShooting.set(TurretSubsystem.active);
+    this.neckOffset.set(turretOffset);
     if (!TurretSubsystem.active) {
       shooterLeaderMotor.set(0);
     }
