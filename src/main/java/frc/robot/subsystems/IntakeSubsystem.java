@@ -38,6 +38,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   final DoublePublisher deployInfo;
   final BooleanPublisher isReloading;
+  final BooleanPublisher isDeployed;
 
   public boolean desiredPosition = false;
   public boolean DEPLOYED = true;
@@ -81,6 +82,7 @@ public class IntakeSubsystem extends SubsystemBase {
     NetworkTable table = inst.getTable("datatable");
     this.deployInfo = table.getDoubleTopic("encoder-info/deploy-motor").publish();
     this.isReloading = table.getBooleanTopic("status/reloading").publish();
+    this.isDeployed = table.getBooleanTopic("status/deployed").publish();
   }
 
   public Command deployIntake() { // Deploys AND retracts intake
@@ -124,6 +126,7 @@ public class IntakeSubsystem extends SubsystemBase {
   public void periodic() {
     this.deployInfo.set(followerEncoder.getPosition());
     this.isReloading.set(IntakeSubsystem.reloading);
+    this.isDeployed.set(this.desiredPosition);
 
     if (IntakeSubsystem.reloading && !this.unjamming) {
       intakeMotor.set(-1);
