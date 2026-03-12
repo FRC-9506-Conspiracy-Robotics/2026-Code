@@ -4,133 +4,128 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.*;
+import java.io.File;
 
-import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-
-import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.PhotonVisionSubsystem;
-import frc.robot.subsystems.LimelightVisionSubsystem;
-import frc.robot.subsystems.PivotSubsystem;
-import frc.robot.subsystems.AnglerSubsytem;
-import frc.robot.subsystems.ShooterSubsystem;
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import frc.robot.Constants.DriverConstants;
+import frc.robot.commands.AutoTrackCommand;
+import frc.robot.commands.LoadShooter;
+import frc.robot.subsystems.ClimberSubsystem;
+import frc.robot.subsystems.HandoffSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.PositionData;
+import frc.robot.subsystems.SpindexSubsystem;
+import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.subsystems.TurretSubsystem;
+import swervelib.SwerveDrive;
+import swervelib.SwerveInputStream;
 
 public class RobotContainer {
-    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
-    /* Setting up bindings for necessary control of the swerve drive platform */
-    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+  final CommandXboxController mDriverController = new CommandXboxController(DriverConstants.kDriverControllerPort);
+  private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
+  public final SwerveDrive swerveDrive = drivebase.getSwerveDrive();
 
-    private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
+  //converts controller inputs to swerveinputstream type for field oriented
+  SwerveInputStream driveAngularVelocity = 
+  SwerveInputStream.of(
+      drivebase.getSwerveDrive(),
+      () -> -mDriverController.getLeftY(),
+      () -> -mDriverController.getLeftX()
+  )
+  .withControllerRotationAxis(() -> -mDriverController.getRightX())
+  .deadband(DriverConstants.kDeadband)
+  .scaleTranslation(0.8)
+  .allianceRelativeControl(false);
+  
+  //copies previous stream and converts to robot oriented
+  SwerveInputStream driveRobotOriented = 
+  driveAngularVelocity.copy()
+  .robotRelative(true)
+  .allianceRelativeControl(false);
 
-    private final Telemetry logger = new Telemetry(MaxSpeed);
+  //controls for keyboard
+  SwerveInputStream driveAngularVelocityKeyboard = 
+  SwerveInputStream.of(drivebase.getSwerveDrive(),
+  () -> -mDriverController.getLeftY(),
+  () -> -mDriverController.getLeftX())
+  .withControllerRotationAxis(
+      () -> mDriverController.getRawAxis(2)
+  )
+  .deadband(DriverConstants.kDeadband)
+  .scaleTranslation(0.8)
+  .allianceRelativeControl(false);
 
-    private final CommandXboxController joystick = new CommandXboxController(0);
+  private final SendableChooser<Command> autoChooser;
 
-    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+  private final HandoffSubsystem handoff = new HandoffSubsystem();
+  private final IntakeSubsystem intake = new IntakeSubsystem();
+  private final SpindexSubsystem spindex = new SpindexSubsystem();
+  private final TurretSubsystem turret = new TurretSubsystem();
+  private final ClimberSubsystem climber = new ClimberSubsystem();
+  public final PositionData positionData = new PositionData(swerveDrive);
 
-    private final PhotonVisionSubsystem photon = new PhotonVisionSubsystem();
-    private final LimelightVisionSubsystem limeLight = new LimelightVisionSubsystem(0);
-    private final PivotSubsystem pivot = new PivotSubsystem();
-    private final AnglerSubsytem angler = new AnglerSubsytem();
-    private final ShooterSubsystem shooter = new ShooterSubsystem();
+  private AutoTrackCommand autoTrackCommand = new AutoTrackCommand(turret, positionData);
+  private LoadShooter loadShooter = new LoadShooter(spindex, handoff, intake);
 
-    public RobotContainer() {
 
-        configureBindings();
-        RobotConfig config;
-        try {
-            config = RobotConfig.fromGUISettings();
-        } catch (Exception ex) {
-            DriverStation.reportError(
-                "Failed to load pathplanner config and configure autobuilder", 
-                ex.getStackTrace());
-                return;
-        }
-        
-        AutoBuilder.configure(
-            () -> this.drivetrain.getState().Pose,
-            this.drivetrain::resetPose,
-            () -> this.drivetrain.getState().Speeds,
+  public RobotContainer() {
 
-            (speeds, feedfowards) -> this.drivetrain.setControl(
-                m_pathApplyRobotSpeeds.withSpeeds(ChassisSpeeds.discretize(speeds, 0.020))
-                .withWheelForceFeedforwardsX(feedfowards.robotRelativeForcesXNewtons())
-                .withWheelForceFeedforwardsY(feedfowards.robotRelativeForcesYNewtons())
-            ),
-            new PPHolonomicDriveController(
-                new PIDConstants(10, 0 ,0),
-                new PIDConstants(7,0 ,0)),
-                config,
+    NamedCommands.registerCommand("Load Shooter", loadShooter); // uses spindex and handoff
+    NamedCommands.registerCommand("Deploy Intake", this.intake.toggleDeploy()); // uses intake
+    NamedCommands.registerCommand("Reload", this.intake.toggleReload()); // uses intake
+    NamedCommands.registerCommand("Toggle Shooter", this.turret.shooterControl()); // uses turret
+    NamedCommands.registerCommand("Auto Track", autoTrackCommand);
+    
+    configureBindings();
 
-                () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
-                this.drivetrain
-        );
-        
-    }
+    autoChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("Auto Chooser", autoChooser);
+    
 
-    private void configureBindings() {
-        // Note that X is defined as forward according to WPILib convention,
-        // and Y is defined as to the left according to WPILib convention.
-        drivetrain.setDefaultCommand(
-            // Drivetrain will execute this command periodically
-            drivetrain.applyRequest(() ->
-                drive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
-            )
-        );
+  }
 
-        // Idle while the robot is disabled. This ensures the configured
-        // neutral mode is applied to the drive motors while disabled.
-        final var idle = new SwerveRequest.Idle();
-        RobotModeTriggers.disabled().whileTrue(
-            drivetrain.applyRequest(() -> idle).ignoringDisable(true)
-        );
+  private void configureBindings() {
 
-        joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        joystick.b().whileTrue(drivetrain.applyRequest(() ->
-            point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
-        ));
+    Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
+    Command driveFieldOrientedAngularVelocityKeyboard = drivebase.driveFieldOriented(driveAngularVelocity);
+      if (RobotBase.isSimulation()) {
+          drivebase.setDefaultCommand(driveFieldOrientedAngularVelocityKeyboard);
+      } else {
+          drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+      }
 
-        // Run SysId routines when holding back/start and X/Y.
-        // Note that each routine should be run exactly once in a single log.
-        joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+    mDriverController.leftStick().onTrue(drivebase.zero());
 
-        // reset the field-centric heading on left stick hold
-        joystick.leftStick().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+    this.turret.setDefaultCommand(autoTrackCommand);
 
-        drivetrain.registerTelemetry(logger::telemeterize);
-    }
+    mDriverController.rightTrigger().whileTrue(loadShooter);
+    mDriverController.rightBumper().whileTrue(this.handoff.unjamShooter());
+    mDriverController.x().onTrue(this.intake.toggleReload());
+    mDriverController.y().onTrue(this.intake.toggleDeploy());
+    mDriverController.a().whileTrue(this.intake.unjamIntake());
+    mDriverController.leftBumper().onTrue(this.turret.shooterControl());
+    mDriverController.povUp().whileTrue(this.climber.raiseClimber());
+    mDriverController.povDown().whileTrue(this.climber.lowerClimber());
+    mDriverController.povRight().onTrue(this.turret.raiseOffset());
+    mDriverController.povLeft().onTrue(this.turret.lowerOffset());
 
-    public Command getAutonomousCommand() {
-        
+    
 
-        return Commands.print("No autonomous command configured");
-    }
+  }
+
+
+  public Command getAutonomousCommand() {
+    return autoChooser.getSelected();
+  }
+
+
 }
