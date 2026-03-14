@@ -6,9 +6,18 @@ package frc.robot;
 
 import java.io.File;
 
+import org.ironmaple.simulation.SimulatedArena;
+import org.ironmaple.simulation.drivesims.COTS;
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
+
+import com.ctre.phoenix6.swerve.jni.SwerveJNI.DriveState;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -73,11 +82,31 @@ public class RobotContainer {
   private final ClimberSubsystem climber = new ClimberSubsystem();
   public final PositionData positionData = new PositionData(swerveDrive);
 
+  private SwerveDriveSimulation swerveDriveSimulation;
+
   private AutoTrackCommand autoTrackCommand = new AutoTrackCommand(turret, positionData);
   private LoadShooter loadShooter = new LoadShooter(spindex, handoff, intake);
 
 
   public RobotContainer() {
+
+    switch (Constants.currentMode) {
+      case SIM:
+        SimulatedArena.getInstance();
+        final DriveTrainSimulationConfig driveTrainSimulationConfig = DriveTrainSimulationConfig.Default()
+          .withGyro(COTS.ofPigeon2())
+          .withSwerveModule(COTS.ofMark4(
+            DCMotor.getKrakenX60(1), 
+            DCMotor.getKrakenX44(1), 
+              1.19, 
+              3));
+      
+        this.swerveDriveSimulation = new SwerveDriveSimulation(
+          driveTrainSimulationConfig, 
+          new Pose2d(3, 4, new Rotation2d()));
+        SimulatedArena.getInstance().addDriveTrainSimulation(swerveDriveSimulation);
+        
+    }
 
     NamedCommands.registerCommand("Load Shooter", loadShooter); // uses spindex and handoff
     NamedCommands.registerCommand("Deploy Intake", this.intake.toggleDeploy()); // uses intake

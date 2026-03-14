@@ -1,9 +1,22 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Inches;
+
+import com.ctre.phoenix6.Utils;
+
 import edu.wpi.first.math.util.Units;
 
 public final class Constants {
+
+    public static final Mode realMode = Mode.REAL;
+    public static final Mode currentMode = Utils.isSimulation() ? Mode.SIM : realMode;
+
+    public static enum Mode {
+        REAL,
+        SIM,
+        REPLAY
+    }
     
     public static class DriverConstants {
         public static final int kDriverControllerPort = 0;
@@ -71,5 +84,17 @@ public final class Constants {
     public static class LimelightNames {
         public static final String limelight4AFront = "limelight-afouri";
         public static final String limelight3ALeft = "limelight-athree";
+        public static final String limelight3ARight = "limelight-athreei";
     }
+
+    public static class TunerConstants {
+        public static final double[] frontLeftPos = {11.375, 10.375};
+        public static final double[] backLeftPos = {-11.375, 10.375};
+        public static final double[] backRightPos = {-11.375, -10.375};
+        public static final double[] frontRightPos = {11.375, -10.375};
+        public static final double driveMotorGearRatio = 6.03;
+        public static final double angleMotorGearRatio = 26.09;
+        public static final double driveWheelDiameter = 4; // in inches
+    }
+    
 }
