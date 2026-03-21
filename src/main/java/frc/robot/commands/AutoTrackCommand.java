@@ -56,7 +56,7 @@ public class AutoTrackCommand extends Command {
 
   private double getVelocity(double angle, double d) {
     double g = 9.81;
-    double h = 1.5;
+    double h = 1.8;
     return Math.sqrt((-g * d * d) / (2 * Math.cos(angle) * Math.cos(angle) * (h - d * Math.tan(angle))));
   }
 
@@ -123,39 +123,53 @@ public class AutoTrackCommand extends Command {
     if ((p.x > 3.6 && p.x < 6.1) || (p.x < 13 && p.x > 11)) {
       desiredAnglerAngle = (75 * (Math.PI / 180));
     }
-
     
     VelocityVector newVelVector = getVelVector(getVelocity(desiredAnglerAngle, distanceFromTarget), xFromHub, yFromHub, p.velX, p.velY, desiredAnglerAngle);
 
-    double newVel = Math.sqrt(Math.pow(newVelVector.velX, 2) + Math.pow(newVelVector.velY, 2)) / Math.cos(desiredAnglerAngle);
+    double distanceFromAimingPoint = Math.sqrt((Math.pow(newVelVector.velY, 2) + Math.pow(newVelVector.velX, 2)));
+
+    double powerScaled = 1;
+    if (distanceFromAimingPoint > 2.75) {
+      powerScaled = 1 + ((distanceFromAimingPoint - 2.75) * 0.1);
+    }
+
+    double currentRotation = this.turret.getNeckPosition() + this.turret.turretOffset / 360;    
+    double pastHalfPoint = (currentRotation > 0.5) ? 2 : 0;
+    double desiredRotation = ((robotAngle - (Math.atan2(newVelVector.velY * powerScaled, newVelVector.velX * powerScaled) * (180 / Math.PI)) + 90) / 360) + pastHalfPoint;
+    
+    double newVel = Math.sqrt(Math.pow(newVelVector.velX * powerScaled, 2) + Math.pow(newVelVector.velY * powerScaled, 2)) / Math.cos(desiredAnglerAngle);
+
     
 
-    double desiredRotation = (robotAngle - (Math.atan2(newVelVector.velY, newVelVector.velX) * (180 / Math.PI)) + 90) / 360;
-    double currentRotation = this.turret.getNeckPosition() + this.turret.turretOffset / 360;
     
     
-
-    if (desiredRotation < -0.03) {
+    if (desiredRotation < (-1.028)) {
+      desiredRotation += 2;
+    }
+    else if (desiredRotation < (-0.028)) {
       desiredRotation += 1;
     }
-    else if (desiredRotation > 1.03) {
+    else if (desiredRotation > (2.028)) {
+      desiredRotation += -2;
+    }
+    else if (desiredRotation > (1.028)) {
       desiredRotation += -1;
     }
 
     double rotationError = desiredRotation - currentRotation;
-    double kP = 7;
+    double kP = 3;
     double controlSignal = kP * rotationError;
-    if (controlSignal > 0.5) {
-      controlSignal = 0.5;
+    if (controlSignal > 0.85) {
+      controlSignal = 0.85;
     }
-    else if (controlSignal < -0.5) {
-      controlSignal = -0.5;
+    else if (controlSignal < -0.85) {
+      controlSignal = -0.85;
     }
 
    this.turret.neckMotor.set(controlSignal);
 
     double anglerError = desiredAnglerAngle - currentAnglerAngle;
-    double anglerkP = 2.5;
+    double anglerkP = 2;
     double anglerSignal = anglerkP * -anglerError;
     if (anglerSignal > 1) {
       anglerSignal = 1;
@@ -176,6 +190,7 @@ public class AutoTrackCommand extends Command {
 
   SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(TurretConstants.shooterkS, TurretConstants.shooterkV, TurretConstants.shooterkA);
   double feedforwardSignal = feedforward.calculate(newVel * shooterTuning / TurretConstants.circumferenceOfWheel);
+  
 
   double velocityError = (newVel * shooterTuning / TurretConstants.circumferenceOfWheel) - this.turret.shooterLeaderMotor.getVelocity().refresh().getValueAsDouble();
   double velocitykP = 0.01;

@@ -51,6 +51,13 @@ public class Robot extends TimedRobot {
     0, 
     0, 
     0);
+    LimelightHelpers.SetRobotOrientation(LimelightNames.limelight3ARight, 
+    this.swerveDrive.getGyroRotation3d().getZ() * 180/Math.PI + correction, 
+    0, 
+    0, 
+    0, 
+    0, 
+    0);
     this.positionData.updatePose();
     
   }

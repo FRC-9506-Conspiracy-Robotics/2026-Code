@@ -24,6 +24,8 @@ public class PositionData {
     final DoublePublisher pidgeonYaw;
     final DoublePublisher allianceFlip;
 
+    public static double speedFactor = 1;
+
     double x = 0;
     double y = 0;
     double yaw = 0;
@@ -53,16 +55,18 @@ public class PositionData {
         
         pidgeonYaw.set(this.swerve.getGyroRotation3d().getZ() * (180/Math.PI));
 
-        ChassisSpeeds velocity = this.swerve.getRobotVelocity();
+        ChassisSpeeds velocity = this.swerve.getFieldVelocity();
         this.velX = velocity.vxMetersPerSecond;
         this.velY = velocity.vyMetersPerSecond;
 
         boolean frontVis = LimelightHelpers.getTV(LimelightNames.limelight4AFront);
         boolean leftVis = LimelightHelpers.getTV(LimelightNames.limelight3ALeft);
+        boolean rightVis = LimelightHelpers.getTV(LimelightNames.limelight3ARight);
         boolean isRedAlliance = DriverStation.getAlliance().get() == Alliance.Red;
         int validTargets = 0;
         PoseEstimate frontPose = null;
         PoseEstimate leftPose = null;
+        PoseEstimate rightPose = null;
         double estimatedX = 0;
         double estimatedY = 0;
         if (frontVis) {
@@ -91,7 +95,20 @@ public class PositionData {
                 leftVis = false;
             }
         }
-        if (leftVis || frontVis) {
+        if (rightVis) {
+            validTargets += 1;
+            if (isRedAlliance) {
+                rightPose = LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(LimelightNames.limelight3ARight);
+            }
+            else {
+                rightPose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LimelightNames.limelight3ARight);
+            }
+            if (rightPose.pose.getMeasureX().in(Meters) == 0 && rightPose.pose.getMeasureY().in(Meters) == 0) {
+                validTargets += -1;
+                rightVis = false;
+            }
+        }
+        if (leftVis || frontVis || rightVis) {
             if (frontVis) {
                 estimatedX += frontPose.pose.getMeasureX().in(Meters);
                 estimatedY += frontPose.pose.getMeasureY().in(Meters);
@@ -99,6 +116,10 @@ public class PositionData {
             if (leftVis) {
                 estimatedX += leftPose.pose.getMeasureX().in(Meters);
                 estimatedY += leftPose.pose.getMeasureY().in(Meters);
+            }
+            if (rightVis) {
+                estimatedX += rightPose.pose.getMeasureX().in(Meters);
+                estimatedY += rightPose.pose.getMeasureY().in(Meters);
             }
             estimatedX = estimatedX / validTargets;
             estimatedY = estimatedY / validTargets;

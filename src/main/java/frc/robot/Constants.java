@@ -1,8 +1,6 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Inches;
-
 import com.ctre.phoenix6.Utils;
 
 import edu.wpi.first.math.util.Units;
@@ -43,7 +41,7 @@ public final class Constants {
         public static final int intakeGearRatio = 2;
 
         public static final int deployCurrentLimit = 40;
-        public static final int intakeCurrentLimit = 10;
+        public static final int intakeCurrentLimit = 25;
     }
 
     public static class TurretConstants {

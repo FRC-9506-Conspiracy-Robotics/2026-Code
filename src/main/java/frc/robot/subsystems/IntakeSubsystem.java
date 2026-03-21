@@ -66,14 +66,14 @@ public class IntakeSubsystem extends SubsystemBase {
 
     SparkMaxConfig deployLeaderConfig = new SparkMaxConfig();
     deployLeaderConfig
-      .idleMode(IdleMode.kBrake)
+      .idleMode(IdleMode.kCoast)
       .smartCurrentLimit(IntakeConstants.deployCurrentLimit);
 
     deployLeaderMotor.configure(deployLeaderConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
 
     SparkMaxConfig deployFollowerConfig = new SparkMaxConfig();
     deployFollowerConfig
-      .idleMode(IdleMode.kBrake)
+      .idleMode(IdleMode.kCoast)
       .follow(deployLeaderMotor, true);
 
     deployFollowerMotor.configure(deployFollowerConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
@@ -98,7 +98,7 @@ public class IntakeSubsystem extends SubsystemBase {
   
   public Command unjamIntake() {
     return startEnd(
-      () -> {intakeMotor.set(1);
+      () -> {intakeMotor.set(0.75);
             this.unjamming = true;},
       () -> {intakeMotor.set(0);
             this.unjamming = false;}
@@ -129,14 +129,14 @@ public class IntakeSubsystem extends SubsystemBase {
     this.isDeployed.set(this.desiredPosition);
 
     if (IntakeSubsystem.reloading && !this.unjamming) {
-      intakeMotor.set(-1);
+      intakeMotor.set(-0.75);
     }
     
     else if (!this.unjamming) {
       intakeMotor.set(0);
     }
 
-    if (desiredPosition == DEPLOYED && this.deployEncoder.getPosition() > -7.5) {
+    if (desiredPosition == DEPLOYED && this.deployEncoder.getPosition() > -10) {
       deployLeaderMotor.set(-this.deploySpeed);
     }
     else if (desiredPosition == STOWED && this.deployEncoder.getPosition() < -0.5) {

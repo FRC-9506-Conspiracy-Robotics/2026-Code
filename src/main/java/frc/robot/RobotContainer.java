@@ -11,7 +11,6 @@ import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 
-import com.ctre.phoenix6.swerve.jni.SwerveJNI.DriveState;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
@@ -47,8 +46,8 @@ public class RobotContainer {
   SwerveInputStream driveAngularVelocity = 
   SwerveInputStream.of(
       drivebase.getSwerveDrive(),
-      () -> -mDriverController.getLeftY(),
-      () -> -mDriverController.getLeftX()
+      () -> -mDriverController.getLeftY() * PositionData.speedFactor,
+      () -> -mDriverController.getLeftX() * PositionData.speedFactor
   )
   .withControllerRotationAxis(() -> -mDriverController.getRightX())
   .deadband(DriverConstants.kDeadband)
@@ -64,8 +63,8 @@ public class RobotContainer {
   //controls for keyboard
   SwerveInputStream driveAngularVelocityKeyboard = 
   SwerveInputStream.of(drivebase.getSwerveDrive(),
-  () -> -mDriverController.getLeftY(),
-  () -> -mDriverController.getLeftX())
+  () -> -mDriverController.getLeftY() * PositionData.speedFactor,
+  () -> -mDriverController.getLeftX() * PositionData.speedFactor)
   .withControllerRotationAxis(
       () -> mDriverController.getRawAxis(2)
   )
@@ -85,7 +84,7 @@ public class RobotContainer {
   private SwerveDriveSimulation swerveDriveSimulation;
 
   private AutoTrackCommand autoTrackCommand = new AutoTrackCommand(turret, positionData);
-  private LoadShooter loadShooter = new LoadShooter(spindex, handoff, intake);
+  private LoadShooter loadShooter = new LoadShooter(spindex, handoff, intake, positionData);
 
 
   public RobotContainer() {

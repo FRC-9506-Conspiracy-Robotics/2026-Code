@@ -21,6 +21,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -61,6 +62,10 @@ public class SwerveSubsystem extends SubsystemBase {
         swerveDrive.setAngularVelocityCompensation(true, true, -0.13); //corrects for skew that occurs as angular velocity increases, tune this
         swerveDrive.setModuleEncoderAutoSynchronize(false, 1); //enable to resync encoders when swerve is not moving
         setupPathPlanner();
+        SwerveModuleState states[] = swerveDrive.getStates();
+        for (int i = 0; i < states.length; i++) {
+            states[i].optimize(new Rotation2d(swerveDrive.getModules()[i].getAbsolutePosition()));
+        }
     }
 
     public SwerveDrive getSwerveDrive() {
