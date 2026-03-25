@@ -55,7 +55,7 @@ public final class Constants {
         public static final double anglerGearRatio = 66.6667;
 
         public static final int neckCurrentLimit = 40;
-        public static final int anglerCurrentLimit = 20;
+        public static final int anglerCurrentLimit = 40;
         public static final int handoffCurrentLimit = 40;
 
         public static final double circumferenceOfWheel = 0.319186;

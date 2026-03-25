@@ -136,7 +136,7 @@ public class IntakeSubsystem extends SubsystemBase {
       intakeMotor.set(0);
     }
 
-    if (desiredPosition == DEPLOYED && this.deployEncoder.getPosition() > -10) {
+    if (desiredPosition == DEPLOYED && this.deployEncoder.getPosition() > -9) {
       deployLeaderMotor.set(-this.deploySpeed);
     }
     else if (desiredPosition == STOWED && this.deployEncoder.getPosition() < -0.5) {

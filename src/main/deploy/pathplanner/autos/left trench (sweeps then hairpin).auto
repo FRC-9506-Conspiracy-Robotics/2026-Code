@@ -35,18 +35,6 @@
                       "data": {
                         "name": "Reload"
                       }
-                    },
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 4.4
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "Reload"
-                      }
                     }
                   ]
                 }
@@ -130,38 +118,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "left trench to balls pt2"
-                }
-              },
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 1.0
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "Reload"
-                      }
-                    },
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 4.0
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "Reload"
-                      }
-                    }
-                  ]
+                  "pathName": "left hairpin pt2"
                 }
               },
               {

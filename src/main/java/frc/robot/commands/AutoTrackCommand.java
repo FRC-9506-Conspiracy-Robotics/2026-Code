@@ -68,8 +68,8 @@ public class AutoTrackCommand extends Command {
     staticVector.velX = fieldVelocity * Math.cos(angleToHub);
     staticVector.velY = fieldVelocity * Math.sin(angleToHub);
     VelocityVector adjustedVector = new VelocityVector();
-    adjustedVector.velX = staticVector.velX - robotVelX;
-    adjustedVector.velY = staticVector.velY - robotVelY;
+    adjustedVector.velX = staticVector.velX - robotVelX * 1.1;
+    adjustedVector.velY = staticVector.velY - robotVelY * 1.1;
     return adjustedVector;
   }
 
@@ -106,11 +106,12 @@ public class AutoTrackCommand extends Command {
     double xFromHub = targetX - p.x;
     double yFromHub = targetY - p.y;
     double distanceFromTarget = Math.sqrt((xFromHub * xFromHub) + (yFromHub * yFromHub));
+    double desiredAnglerAngle = (83 - (distanceFromTarget * 4)) * (Math.PI / 180);
 
     // get angle in radians
     double currentAnglerAngle = (75 - (this.turret.anglerMotor.getPosition().refresh().getValueAsDouble() / TurretConstants.anglerGearRatio) * 360) * (Math.PI / 180);
     
-    double desiredAnglerAngle = (83 - (distanceFromTarget * 4)) * (Math.PI / 180);
+    
 
 
     if (desiredAnglerAngle < (50 * (Math.PI / 180))) {
@@ -129,8 +130,8 @@ public class AutoTrackCommand extends Command {
     double distanceFromAimingPoint = Math.sqrt((Math.pow(newVelVector.velY, 2) + Math.pow(newVelVector.velX, 2)));
 
     double powerScaled = 1;
-    if (distanceFromAimingPoint > 2.75) {
-      powerScaled = 1 + ((distanceFromAimingPoint - 2.75) * 0.1);
+    if (distanceFromAimingPoint > 2.3) {
+      powerScaled = 1 + (Math.pow((distanceFromAimingPoint - 2.3) * 0.2 + (0.01 * (distanceFromAimingPoint - 2.3)), 2));
     }
 
     double currentRotation = this.turret.getNeckPosition() + this.turret.turretOffset / 360;    
@@ -157,7 +158,7 @@ public class AutoTrackCommand extends Command {
     }
 
     double rotationError = desiredRotation - currentRotation;
-    double kP = 3;
+    double kP = 5;
     double controlSignal = kP * rotationError;
     if (controlSignal > 0.85) {
       controlSignal = 0.85;
@@ -169,13 +170,13 @@ public class AutoTrackCommand extends Command {
    this.turret.neckMotor.set(controlSignal);
 
     double anglerError = desiredAnglerAngle - currentAnglerAngle;
-    double anglerkP = 2;
+    double anglerkP = 1.5;
     double anglerSignal = anglerkP * -anglerError;
-    if (anglerSignal > 1) {
-      anglerSignal = 1;
+    if (anglerSignal > 0.4) {
+      anglerSignal = 0.4;
     }
-    else if (anglerSignal < -1) {
-      anglerSignal = -1;
+    else if (anglerSignal < -0.4) {
+      anglerSignal = -0.4;
     }
 
    this.turret.anglerMotor.set(anglerSignal);
@@ -186,7 +187,7 @@ public class AutoTrackCommand extends Command {
   this.poseY.set(p.y);
   this.poseYaw.set(p.yaw);
 
-  double shooterTuning = 1.9;
+  double shooterTuning = 1.875;
 
   SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(TurretConstants.shooterkS, TurretConstants.shooterkV, TurretConstants.shooterkA);
   double feedforwardSignal = feedforward.calculate(newVel * shooterTuning / TurretConstants.circumferenceOfWheel);
@@ -201,7 +202,7 @@ public class AutoTrackCommand extends Command {
     velocitySignal = 0;
   }
 
-double volts = feedforwardSignal + velocitySignal;
+double volts = feedforwardSignal;
 
 this.feedforwardData.set(feedforwardSignal);
 this.velocityData.set(velocitySignal);
@@ -213,7 +214,9 @@ else if (volts < -12) {
   volts = -12;
 }
 
-  this.turret.shooterLeaderMotor.setVoltage(volts);
+double distanceFactor = 1 + (distanceFromAimingPoint - 2.7) * 0.1;
+  
+  this.turret.shooterLeaderMotor.setVoltage(volts * distanceFactor);
 
   // BangBangController bb_Controller = new BangBangController();
 
