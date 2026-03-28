@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.DriverConstants;
 import frc.robot.commands.AutoTrackCommand;
 import frc.robot.commands.LoadShooter;
+import frc.robot.commands.UnjamShooter;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.HandoffSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -85,6 +86,7 @@ public class RobotContainer {
 
   private AutoTrackCommand autoTrackCommand = new AutoTrackCommand(turret, positionData);
   private LoadShooter loadShooter = new LoadShooter(spindex, handoff, intake, positionData);
+  private UnjamShooter unjamShooter = new UnjamShooter(spindex, handoff);
 
 
   public RobotContainer() {
@@ -136,7 +138,7 @@ public class RobotContainer {
     this.turret.setDefaultCommand(autoTrackCommand);
 
     mDriverController.rightTrigger().whileTrue(loadShooter);
-    mDriverController.rightBumper().whileTrue(this.handoff.unjamShooter());
+    mDriverController.rightBumper().whileTrue(unjamShooter);
     mDriverController.x().onTrue(this.intake.toggleReload());
     mDriverController.y().onTrue(this.intake.toggleDeploy());
     mDriverController.a().whileTrue(this.intake.unjamIntake());

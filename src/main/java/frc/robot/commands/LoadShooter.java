@@ -64,7 +64,7 @@ public class LoadShooter extends Command {
       this.bumpPeriod = 9999;
     }
 
-    this.spindex.spindexMotor.set(-0.5);
+    this.spindex.spindexMotor.set(-0.6);
     this.handoff.shooterHandoffMotor.set(1);
     this.intake.intakeMotor.set(-1);
     

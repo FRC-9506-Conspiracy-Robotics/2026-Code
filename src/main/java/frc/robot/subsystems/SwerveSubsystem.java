@@ -59,7 +59,7 @@ public class SwerveSubsystem extends SubsystemBase {
         }
         swerveDrive.setHeadingCorrection(false); 
         swerveDrive.setCosineCompensator(false);
-        swerveDrive.setAngularVelocityCompensation(true, true, -0.13); //corrects for skew that occurs as angular velocity increases, tune this
+        swerveDrive.setAngularVelocityCompensation(true, true, 0.1); //corrects for skew that occurs as angular velocity increases, tune this
         swerveDrive.setModuleEncoderAutoSynchronize(false, 1); //enable to resync encoders when swerve is not moving
         setupPathPlanner();
         SwerveModuleState states[] = swerveDrive.getStates();

@@ -51,10 +51,10 @@ public class ClimberSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if (climberMotor.getPosition().refresh().getValueAsDouble() > -110 && rising) {
+    if (climberMotor.getPosition().refresh().getValueAsDouble() > -117 && rising) {
       climberMotor.set(-0.2);
     }
-    else if (climberMotor.getPosition().refresh().getValueAsDouble() < -5 && falling) {
+    else if (climberMotor.getPosition().refresh().getValueAsDouble() < -2 && falling) {
       climberMotor.set(0.5);
     }
     else {
