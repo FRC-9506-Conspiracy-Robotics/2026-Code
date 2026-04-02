@@ -28,6 +28,7 @@ import frc.robot.commands.AutoTrackCommand;
 import frc.robot.commands.LoadShooter;
 import frc.robot.commands.UnjamShooter;
 import frc.robot.subsystems.ClimberSubsystem;
+import frc.robot.subsystems.DrumShooterSubsystem;
 import frc.robot.subsystems.HandoffSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.PositionData;
@@ -42,7 +43,8 @@ public class RobotContainer {
   final CommandXboxController mDriverController = new CommandXboxController(DriverConstants.kDriverControllerPort);
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
   public final SwerveDrive swerveDrive = drivebase.getSwerveDrive();
-
+  public static boolean lockOn = false;
+  public static double rotationError = 0;
   //converts controller inputs to swerveinputstream type for field oriented
   SwerveInputStream driveAngularVelocity = 
   SwerveInputStream.of(
@@ -50,7 +52,7 @@ public class RobotContainer {
       () -> -mDriverController.getLeftY() * PositionData.speedFactor,
       () -> -mDriverController.getLeftX() * PositionData.speedFactor
   )
-  .withControllerRotationAxis(() -> -mDriverController.getRightX())
+  .withControllerRotationAxis(() -> lockOn ? PositionData.rotationSignal : -mDriverController.getRightX())
   .deadband(DriverConstants.kDeadband)
   .scaleTranslation(0.8)
   .allianceRelativeControl(false);
@@ -81,12 +83,14 @@ public class RobotContainer {
   private final TurretSubsystem turret = new TurretSubsystem();
   private final ClimberSubsystem climber = new ClimberSubsystem();
   public final PositionData positionData = new PositionData(swerveDrive);
+  private final DrumShooterSubsystem drumShooter = new DrumShooterSubsystem();
 
   private SwerveDriveSimulation swerveDriveSimulation;
 
   private AutoTrackCommand autoTrackCommand = new AutoTrackCommand(turret, positionData);
   private LoadShooter loadShooter = new LoadShooter(spindex, handoff, intake, positionData);
   private UnjamShooter unjamShooter = new UnjamShooter(spindex, handoff);
+  
 
 
   public RobotContainer() {
@@ -142,6 +146,7 @@ public class RobotContainer {
     mDriverController.x().onTrue(this.intake.toggleReload());
     mDriverController.y().onTrue(this.intake.toggleDeploy());
     mDriverController.a().whileTrue(this.intake.unjamIntake());
+    mDriverController.leftTrigger().whileTrue(drumShooter.lockOn());
     mDriverController.leftBumper().onTrue(this.turret.shooterControl());
     mDriverController.povUp().whileTrue(this.climber.raiseClimber());
     mDriverController.povDown().whileTrue(this.climber.lowerClimber());

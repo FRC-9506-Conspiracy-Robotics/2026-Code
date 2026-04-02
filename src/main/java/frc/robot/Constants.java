@@ -44,6 +44,20 @@ public final class Constants {
         public static final int intakeCurrentLimit = 25;
     }
 
+    public static class DrumShooterConstants {
+        public static final int shooterMotor0ID = 0;
+        public static final int shooterMotor1ID = 0;
+        public static final int shooterMotor2ID = 0;
+        public static final int shooterMotor3ID = 0;
+
+        public static final int handoffMotor0 = 0;
+        public static final int handoffMotor1 = 0;
+    }
+
+    public static class AnglerConstants {
+        public static final int anglerMotorID = 0;
+    }
+
     public static class TurretConstants {
         public static final int neckMotorID = 17; 
         public static final int anglerMotorID = 18;

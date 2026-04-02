@@ -25,6 +25,7 @@ public class PositionData {
     final DoublePublisher allianceFlip;
 
     public static double speedFactor = 1;
+    public static double rotationSignal = 0;
 
     double x = 0;
     double y = 0;
@@ -49,6 +50,20 @@ public class PositionData {
         NetworkTable table = inst.getTable("datatable");
         pidgeonYaw = table.getDoubleTopic("auto-track-command/pidgeon-yaw").publish();
         this.allianceFlip = table.getDoubleTopic("auto-track-command/alliance-flipped").publish();
+    }
+
+    private void updateRotationSignal() {
+        double angle = Math.atan2(this.y - 4, this.x - 4.6);
+        double rotationError = angle - this.swerve.getGyroRotation3d().getZ();
+        double kP = 1;
+        double signal = rotationError * kP;
+        if (signal > 1) {
+            signal = 1;
+        }
+        else if (signal < -1) {
+            signal = -1;
+        }
+        PositionData.rotationSignal = signal;
     }
 
     public void updatePose() {
@@ -129,6 +144,7 @@ public class PositionData {
             this.yaw = this.swerve.getGyroRotation3d().getZ() * 180/Math.PI;
             Pose2d newPose = new Pose2d(estimatedX, estimatedY, this.swerve.getYaw());
             swerve.resetOdometry(newPose);
+            updateRotationSignal();
 
             return;
         }
@@ -136,6 +152,7 @@ public class PositionData {
         this.x = this.swerve.getPose().getMeasureX().in(Meters);
         this.y = this.swerve.getPose().getMeasureY().in(Meters);
         this.yaw = this.swerve.getGyroRotation3d().getZ() * (180/Math.PI);
+        updateRotationSignal();
     }
 
     public Pose getPose() {
