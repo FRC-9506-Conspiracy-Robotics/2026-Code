@@ -44,38 +44,43 @@ public class LoadShooter extends Command {
       this.bumpPeriod = 1;
     }
     PositionData.speedFactor = 0.29;
+    this.spindex.spindexMotor.set(-0.6);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
 
-    PositionData.speedFactor = 0.29;
+    PositionData.speedFactor = 0.2;
 
     if (IntakeSubsystem.outOfZone == true) {
-      this.bumpPeriod = 3;
+      this.bumpPeriod = 1;
     }
     else {
-      this.bumpPeriod = 1;
+      this.bumpPeriod = 0.7;
     }
 
     Pose vector = this.positionData.getPose();
     if (vector.velX > 0.1 || vector.velX < -0.1 || vector.velY > 0.1 || vector.velY < -0.1) {
-      this.bumpPeriod = 9999;
+      this.bumpPeriod = 1.25;
     }
 
     this.spindex.spindexMotor.set(-0.6);
     this.handoff.shooterHandoffMotor.set(1);
     this.intake.intakeMotor.set(-1);
     
-    if (Utils.getCurrentTimeSeconds() - runTime > bumpPeriod + 0.4) {
+    if (Utils.getCurrentTimeSeconds() - runTime > bumpPeriod + 0.2) {
       this.intake.desiredPosition = this.intake.DEPLOYED;
+      // this.spindex.spindexMotor.set(0.6);
       this.runTime = Utils.getCurrentTimeSeconds();
     }
     else if (Utils.getCurrentTimeSeconds() - runTime > bumpPeriod) {
       this.intake.desiredPosition = this.intake.STOWED;
     }
-
+    // else if (Utils.getCurrentTimeSeconds() - runTime > 0.2) {
+    //   this.spindex.spindexMotor.set(-0.6);
+    // }
+    
   }
 
   // Called once the command ends or is interrupted.

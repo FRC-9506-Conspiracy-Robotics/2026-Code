@@ -30,7 +30,7 @@ public class ClimberSubsystem extends SubsystemBase {
       .withCurrentLimits(
         new CurrentLimitsConfigs()
           .withStatorCurrentLimit(ClimberConstants.climberCurrentLimit)
-          .withSupplyCurrentLimitEnable(true)
+          .withStatorCurrentLimitEnable(true)
       );
 
     climberMotor.getConfigurator().apply(climberConfig);

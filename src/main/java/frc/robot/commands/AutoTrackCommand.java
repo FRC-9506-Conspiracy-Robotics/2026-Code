@@ -29,6 +29,7 @@ public class AutoTrackCommand extends Command {
   final DoublePublisher poseYaw;
   final DoublePublisher feedforwardData;
   final DoublePublisher velocityData;
+  final DoublePublisher distancePublisher;
   private TurretSubsystem turret;
   private PositionData positionData;
   /** Creates a new AutoTrackCommand. */
@@ -47,6 +48,7 @@ public class AutoTrackCommand extends Command {
     this.poseYaw = table.getDoubleTopic("turret-auto-track/pyaw").publish();
     this.feedforwardData = table.getDoubleTopic("shooter-signals/feedforward-signal").publish();
     this.velocityData = table.getDoubleTopic("shooter-signals/velocity-signal").publish();
+    this.distancePublisher = table.getDoubleTopic("shooter-signals/distance").publish();
   }
 
   private class VelocityVector {
@@ -131,6 +133,7 @@ public class AutoTrackCommand extends Command {
     VelocityVector newVelVector = getVelVector(getVelocity(desiredAnglerAngle, distanceFromTarget), xFromHub, yFromHub, p.velX, p.velY, desiredAnglerAngle);
 
     double distanceFromAimingPoint = Math.sqrt((Math.pow(newVelVector.velY, 2) + Math.pow(newVelVector.velX, 2)));
+    this.distancePublisher.set(distanceFromAimingPoint);
 
     double powerScaled = 1;
     // if (distanceFromAimingPoint > 2.3) {
@@ -190,7 +193,7 @@ public class AutoTrackCommand extends Command {
   this.poseY.set(p.y);
   this.poseYaw.set(p.yaw);
 
-  double shooterTuning = 1.7;
+  double shooterTuning = 2.1;
 
   SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(TurretConstants.shooterkS, TurretConstants.shooterkV, TurretConstants.shooterkA);
   double feedforwardSignal = feedforward.calculate(newVel * shooterTuning / TurretConstants.circumferenceOfWheel);
@@ -217,8 +220,19 @@ else if (volts < -12) {
   volts = -12;
 }
 
-double distanceFactor = Math.pow(1 + (distanceFromAimingPoint - 2.7) * 0.15, Math.pow(1 + (distanceFromAimingPoint - 2.7), 2));
-// if (distanceFactor < 1) {
+
+double angleFactor = 1 + 0.8 * (Math.abs(currentRotation - 0.25));
+
+
+double distanceFactor = 1;
+if (distanceFromAimingPoint < 2.7) {
+  distanceFactor = 1 + 0.3
+  
+  * (distanceFromAimingPoint - 2.7);
+}
+else if (distanceFromAimingPoint > 2.7) {
+  distanceFactor = 1 + 0.275 * (distanceFromAimingPoint - 2.7);
+}
 //   distanceFactor = Math.pow(distanceFactor, 3.42);
 // }
 // else if (distanceFactor > 1) {
@@ -230,7 +244,7 @@ if (p.velX > 0.1 || p.velX < -0.1 || p.velY > 0.1 || p.velY < -0.1) {
   movingFactor = 1 + (Math.sqrt((Math.pow(p.velX, 2) + Math.pow(p.velY, 2))) * 0.3);
 }
   
-  this.turret.shooterLeaderMotor.setVoltage(volts * distanceFactor * movingFactor);
+  this.turret.shooterLeaderMotor.setVoltage(volts * distanceFactor * movingFactor * angleFactor);
 
   // BangBangController bb_Controller = new BangBangController();
 

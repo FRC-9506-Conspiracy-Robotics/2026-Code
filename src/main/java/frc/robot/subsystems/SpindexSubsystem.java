@@ -27,7 +27,7 @@ public class SpindexSubsystem extends SubsystemBase {
       .withCurrentLimits(
         new CurrentLimitsConfigs()
           .withStatorCurrentLimit(SpindexConstants.spindexCurrentLimit)
-          .withSupplyCurrentLimitEnable(true)
+          .withStatorCurrentLimitEnable(true)
       );
 
     spindexMotor.getConfigurator().apply(spindexConfig);

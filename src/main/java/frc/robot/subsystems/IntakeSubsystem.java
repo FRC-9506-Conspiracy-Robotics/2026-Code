@@ -57,7 +57,7 @@ public class IntakeSubsystem extends SubsystemBase {
       .withCurrentLimits(
         new CurrentLimitsConfigs()
           .withStatorCurrentLimit(IntakeConstants.intakeCurrentLimit)
-          .withSupplyCurrentLimitEnable(true)
+          .withStatorCurrentLimitEnable(true)
       );
 
     intakeMotor.getConfigurator().apply(intakeConfig);
@@ -138,9 +138,19 @@ public class IntakeSubsystem extends SubsystemBase {
 
     if (desiredPosition == DEPLOYED && this.deployEncoder.getPosition() > -9) {
       deployLeaderMotor.set(-this.deploySpeed);
+      intakeMotor.set(0);
     }
-    else if (desiredPosition == STOWED && this.deployEncoder.getPosition() < -0.5) {
-      deployLeaderMotor.set(this.deploySpeed);
+    else if (desiredPosition == STOWED && this.deployEncoder.getPosition() < -1) {
+      deployLeaderMotor.set(this.deploySpeed * 8/5);
+      intakeMotor.set(0);
+    }
+    else if (desiredPosition == DEPLOYED && !this.unjamming) {
+      deployLeaderMotor.set(0);
+      intakeMotor.set(-0.75);
+    }
+    else if (!this.unjamming) {
+      deployLeaderMotor.set(0);
+      intakeMotor.set(0);
     }
     else {
       deployLeaderMotor.set(0);

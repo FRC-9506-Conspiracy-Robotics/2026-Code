@@ -25,7 +25,7 @@ public class HandoffSubsystem extends SubsystemBase {
     ).withCurrentLimits(
       new CurrentLimitsConfigs()
       .withStatorCurrentLimit(TurretConstants.handoffCurrentLimit)
-      .withSupplyCurrentLimitEnable(true)
+      .withStatorCurrentLimitEnable(true)
     );
     this.shooterHandoffMotor.getConfigurator().apply(handoffConfig);
   }

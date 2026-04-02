@@ -60,7 +60,7 @@ public class TurretSubsystem extends SubsystemBase {
       .withCurrentLimits(
         new CurrentLimitsConfigs()
           .withStatorCurrentLimit(TurretConstants.neckCurrentLimit)
-          .withSupplyCurrentLimitEnable(true)
+          .withStatorCurrentLimitEnable(true)
       );
 
     neckMotor.getConfigurator().apply(neckConfig);
@@ -74,7 +74,7 @@ public class TurretSubsystem extends SubsystemBase {
       .withCurrentLimits(
         new CurrentLimitsConfigs()
           .withStatorCurrentLimit(TurretConstants.anglerCurrentLimit)
-          .withSupplyCurrentLimitEnable(true)
+          .withStatorCurrentLimitEnable(true)
       );
 
     anglerMotor.getConfigurator().apply(anglerConfig);
@@ -88,7 +88,7 @@ public class TurretSubsystem extends SubsystemBase {
       .withCurrentLimits(
         new CurrentLimitsConfigs()
           .withStatorCurrentLimit(TurretConstants.neckCurrentLimit)
-          .withSupplyCurrentLimitEnable(true)
+          .withStatorCurrentLimitEnable(true)
       );
 
       shooterLeaderMotor.getConfigurator().apply(shooterLeadConfig);
@@ -102,7 +102,7 @@ public class TurretSubsystem extends SubsystemBase {
       .withCurrentLimits(
         new CurrentLimitsConfigs()
           .withStatorCurrentLimit(TurretConstants.neckCurrentLimit)
-          .withSupplyCurrentLimitEnable(true)
+          .withStatorCurrentLimitEnable(true)
       );
 
       shooterFollowerMotor.getConfigurator().apply(shooterFollowConfig);
