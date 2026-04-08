@@ -44,7 +44,6 @@ public class RobotContainer {
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
   public final SwerveDrive swerveDrive = drivebase.getSwerveDrive();
   public static boolean lockOn = false;
-  public static double rotationError = 0;
   //converts controller inputs to swerveinputstream type for field oriented
   SwerveInputStream driveAngularVelocity = 
   SwerveInputStream.of(

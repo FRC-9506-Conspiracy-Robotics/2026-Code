@@ -26,6 +26,7 @@ public class PositionData {
 
     public static double speedFactor = 1;
     public static double rotationSignal = 0;
+    public static String zone = "Alliance";
 
     double x = 0;
     double y = 0;
@@ -50,6 +51,20 @@ public class PositionData {
         NetworkTable table = inst.getTable("datatable");
         pidgeonYaw = table.getDoubleTopic("auto-track-command/pidgeon-yaw").publish();
         this.allianceFlip = table.getDoubleTopic("auto-track-command/alliance-flipped").publish();
+    }
+
+    private void zoneSelection() {
+
+    }
+
+    public double getVelocity(double angle, double d) {
+        double g = 9.81;
+        double h = 1.8;
+        return Math.sqrt((-g * d * d) / (2 * Math.cos(angle) * Math.cos(angle) * (h - d * Math.tan(angle))));
+    }
+
+    public double getDistance() {
+
     }
 
     private void updateRotationSignal() {
