@@ -32,7 +32,8 @@ public class DrumShooterSubsystem extends SubsystemBase {
 
   public Command lockOn() {
     return startEnd(
-      () -> RobotContainer.lockOn = true, 
+      () -> {RobotContainer.lockOn = true;
+            PositionData.accumulatedError = 0;}, 
       () -> RobotContainer.lockOn = false);
   }
 

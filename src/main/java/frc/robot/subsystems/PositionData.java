@@ -6,6 +6,8 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Meters;
 
+import com.ctre.phoenix6.Utils;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.DoublePublisher;
@@ -23,10 +25,20 @@ public class PositionData {
 
     final DoublePublisher pidgeonYaw;
     final DoublePublisher allianceFlip;
+    final DoublePublisher calculatedAngle;
+    final DoublePublisher robotsAngle;
+    final DoublePublisher accumulation;
+    final DoublePublisher error;
+
+    private double lastTimestamp = 0;
+    private double lastError = 0;
 
     public static double speedFactor = 1;
     public static double rotationSignal = 0;
-    public static String zone = "Alliance";
+    public static double accumulatedError = 0;
+
+    private int currentZone = 0; // 0 = alliance zone, 1 = left side neutral zone, 2 = right side neutral zone
+    private double [][] zones = {{4.6, 4}, {2.5, 6}, {2.5, 2}};
 
     double x = 0;
     double y = 0;
@@ -51,10 +63,22 @@ public class PositionData {
         NetworkTable table = inst.getTable("datatable");
         pidgeonYaw = table.getDoubleTopic("auto-track-command/pidgeon-yaw").publish();
         this.allianceFlip = table.getDoubleTopic("auto-track-command/alliance-flipped").publish();
+        this.calculatedAngle = table.getDoubleTopic("position-data/calculated-angle").publish();
+        this.robotsAngle = table.getDoubleTopic("position-data/robot-angle").publish();
+        this.error = table.getDoubleTopic("position-data/rotation-error").publish();
+        this.accumulation = table.getDoubleTopic("position-data/accumulated-error").publish();
     }
 
     private void zoneSelection() {
-
+        if (this.x < 4.6) {
+            this.currentZone = 0;
+        }
+        else if (this.x > 5.2 && this.y > 4.1) {
+            this.currentZone = 1;
+        }
+        else if (this.x > 5.2 && this.y < 3.9) {
+            this.currentZone = 2;
+        }
     }
 
     public double getVelocity(double angle, double d) {
@@ -64,14 +88,25 @@ public class PositionData {
     }
 
     public double getDistance() {
-
+        return Math.sqrt(Math.pow(this.zones[currentZone][0] - this.x, 2) + Math.pow(this.zones[currentZone][1] - this.y, 2));
     }
 
     private void updateRotationSignal() {
-        double angle = Math.atan2(this.y - 4, this.x - 4.6);
+        double angle = Math.atan2(this.zones[currentZone][1] - this.y, this.zones[currentZone][0] - this.x);
         double rotationError = angle - this.swerve.getGyroRotation3d().getZ();
+        if (rotationError > Math.PI) {
+            rotationError += -2 * Math.PI;
+        }
+        else if (rotationError < -Math.PI) {
+            rotationError += 2 * Math.PI;
+        }
         double kP = 1;
-        double signal = rotationError * kP;
+        double kI = 0.1;
+        double kD = 0.1;
+        double dT = Utils.getCurrentTimeSeconds() - lastTimestamp;
+        double derivativeError = (rotationError - lastError) / (Utils.getCurrentTimeSeconds() - lastTimestamp);
+        accumulatedError += rotationError * kI * dT;
+        double signal = rotationError * kP + derivativeError * kD + accumulatedError;
         if (signal > 1) {
             signal = 1;
         }
@@ -79,6 +114,12 @@ public class PositionData {
             signal = -1;
         }
         PositionData.rotationSignal = signal;
+        this.calculatedAngle.set(angle);
+        this.robotsAngle.set(this.swerve.getGyroRotation3d().getZ());
+        this.error.set(rotationError);
+        this.accumulation.set(accumulatedError);
+        this.lastError = rotationError;
+        this.lastTimestamp = Utils.getCurrentTimeSeconds();
     }
 
     public void updatePose() {
@@ -160,6 +201,7 @@ public class PositionData {
             Pose2d newPose = new Pose2d(estimatedX, estimatedY, this.swerve.getYaw());
             swerve.resetOdometry(newPose);
             updateRotationSignal();
+            zoneSelection();
 
             return;
         }
@@ -168,6 +210,7 @@ public class PositionData {
         this.y = this.swerve.getPose().getMeasureY().in(Meters);
         this.yaw = this.swerve.getGyroRotation3d().getZ() * (180/Math.PI);
         updateRotationSignal();
+        zoneSelection();
     }
 
     public Pose getPose() {

@@ -138,7 +138,7 @@ public class RobotContainer {
 
     mDriverController.leftStick().onTrue(drivebase.zero());
 
-    this.turret.setDefaultCommand(autoTrackCommand);
+    // this.turret.setDefaultCommand(autoTrackCommand);
 
     mDriverController.rightTrigger().whileTrue(loadShooter);
     mDriverController.rightBumper().whileTrue(unjamShooter);
