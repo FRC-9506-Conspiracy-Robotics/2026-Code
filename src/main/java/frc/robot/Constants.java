@@ -30,6 +30,8 @@ public final class Constants {
         public static final int followerShooterMotorID = 4;
     }
 
+    // everything below will be for drum shooter
+
     public static class IntakeConstants {
         public static final int deployLeaderID = 13;
         public static final int deployFollowerID = 14;
@@ -45,68 +47,75 @@ public final class Constants {
     }
 
     public static class DrumShooterConstants {
-        public static final int shooterMotor0ID = 0;
-        public static final int shooterMotor1ID = 0;
-        public static final int shooterMotor2ID = 0;
-        public static final int shooterMotor3ID = 0;
+        public static final int shooterMotorLeadTL = 17;
+        public static final int shooterMotorFollowerBL = 18;
+        public static final int shooterMotorFollowerTR = 19;
+        public static final int shooterMotorFollowerBR = 20;
 
-        public static final int handoffMotor0 = 0;
-        public static final int handoffMotor1 = 0;
+        public static final int centerHandoffMotor = 21;
+        public static final int rampHandoffMotor = 22;
+
+        public static final int shooterCurrentLimit = 40;
+        public static final int centerHandoffCurrentLimit = 25;
+        public static final int rampHandoffCurrentLimit = 30;
+
+        public static final double kS = 0.5566;
+        public static final double kV = 0.28884;
+    }
+
+    public static class HopperConstants {
+        public static final int hopperMotorID = 16;
+
+        public static final int hopperCurrentLimit = 30;
     }
 
     public static class AnglerConstants {
-        public static final int anglerMotorID = 0;
+        public static final int anglerMotorID = 24;
+
+        public static final int anglerCurrentLimit = 25;
     }
 
-    public static class TurretConstants {
-        public static final int neckMotorID = 17; 
-        public static final int anglerMotorID = 18;
-        public static final int shooterLeadID = 19;
-        public static final int shooterFollowerID = 20;
-        public static final int shooterHandoffID = 21;
+    // all motor IDs below useless!!!!
 
-        public static final double neckGearRatio = 37.5;
-        public static final double anglerGearRatio = 66.6667;
+    // public static class TurretConstants {
+    //     public static final int neckMotorID = 17; 
+    //     public static final int anglerMotorID = 18;
+    //     public static final int shooterLeadID = 19;
+    //     public static final int shooterFollowerID = 20;
+    //     public static final int shooterHandoffID = 21;
 
-        public static final int neckCurrentLimit = 40;
-        public static final int anglerCurrentLimit = 40;
-        public static final int handoffCurrentLimit = 40;
+    //     public static final double neckGearRatio = 37.5;
+    //     public static final double anglerGearRatio = 66.6667;
 
-        public static final double circumferenceOfWheel = 0.319186;
+    //     public static final int neckCurrentLimit = 40;
+    //     public static final int anglerCurrentLimit = 40;
+    //     public static final int handoffCurrentLimit = 40;
 
-        public static final double shooterkV = 0.12079;
-        public static final double shooterkA = 0;
-        public static final double shooterkS = 0.24189;
-    }
+    //     public static final double circumferenceOfWheel = 0.319186;
 
-    public static class SpindexConstants {
-        public static final int spindexMotorID = 16;
+    //     public static final double shooterkV = 0.12079;
+    //     public static final double shooterkA = 0;
+    //     public static final double shooterkS = 0.24189;
+    // }
 
-        public static final int spindexCurrentLimit = 40;
-    }
+    // public static class SpindexConstants {
+    //     public static final int spindexMotorID = 16;
 
-    public static class ClimberConstants {
-        public static final int climberMotorID = 22;
+    //     public static final int spindexCurrentLimit = 40;
+    // }
 
-        public static final int climberCurrentLimit = 40;
+    // public static class ClimberConstants {
+    //     public static final int climberMotorID = 22;
 
-        public static final int climberGearRatio = 36;
-    }
+    //     public static final int climberCurrentLimit = 40;
+
+    //     public static final int climberGearRatio = 36;
+    // }
 
     public static class LimelightNames {
         public static final String limelight4AFront = "limelight-afouri";
         public static final String limelight3ALeft = "limelight-athree";
         public static final String limelight3ARight = "limelight-athreei";
-    }
-
-    public static class TunerConstants {
-        public static final double[] frontLeftPos = {11.375, 10.375};
-        public static final double[] backLeftPos = {-11.375, 10.375};
-        public static final double[] backRightPos = {-11.375, -10.375};
-        public static final double[] frontRightPos = {11.375, -10.375};
-        public static final double driveMotorGearRatio = 6.03;
-        public static final double angleMotorGearRatio = 26.09;
-        public static final double driveWheelDiameter = 4; // in inches
     }
     
 }

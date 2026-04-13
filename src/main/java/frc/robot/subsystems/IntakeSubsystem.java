@@ -43,7 +43,7 @@ public class IntakeSubsystem extends SubsystemBase {
   public boolean desiredPosition = false;
   public boolean DEPLOYED = true;
   public boolean STOWED =  false;
-  public double deploySpeed = 0.35;
+  public double deploySpeed = 0.25;
   public boolean unjamming = false;
   public static boolean deploying = false;
 
@@ -141,7 +141,7 @@ public class IntakeSubsystem extends SubsystemBase {
       intakeMotor.set(0);
     }
     else if (desiredPosition == STOWED && this.deployEncoder.getPosition() < -1) {
-      deployLeaderMotor.set(this.deploySpeed * 8/5);
+      deployLeaderMotor.set(this.deploySpeed);
       intakeMotor.set(0);
     }
     else if (desiredPosition == DEPLOYED && !this.unjamming) {

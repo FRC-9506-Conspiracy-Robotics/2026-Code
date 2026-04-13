@@ -112,7 +112,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void simulationInit() {
-
+    m_robotContainer.swerveDrive.getMapleSimDrive();
   }
 
   @Override

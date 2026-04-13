@@ -37,7 +37,7 @@ public class PositionData {
     public static double rotationSignal = 0;
     public static double accumulatedError = 0;
 
-    private int currentZone = 0; // 0 = alliance zone, 1 = left side neutral zone, 2 = right side neutral zone
+    public int currentZone = 0; // 0 = alliance zone, 1 = left side neutral zone, 2 = right side neutral zone
     private double [][] zones = {{4.6, 4}, {2.5, 6}, {2.5, 2}};
 
     double x = 0;
