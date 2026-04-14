@@ -215,7 +215,7 @@ public class DrumShooterSubsystem extends SubsystemBase {
 
     double distanceCorrection = 1;
     if (positionData.getDistance() > 2.75) {
-      distanceCorrection = 1 + Math.pow(((positionData.getDistance() - 2.75) * 0.15), 4/3);
+      distanceCorrection = 1 + ((positionData.getDistance() - 2.75) * 0.15);
     }
     if (distanceCorrection > 1.5) {
       distanceCorrection = 1.5;
@@ -223,7 +223,7 @@ public class DrumShooterSubsystem extends SubsystemBase {
 
     double angleCorrection = 1;
     if (AnglerSubsystem.farFromHub) {
-      angleCorrection = 0.825;
+      angleCorrection = 0.85;
     }
 
     this.shooterMotorLeadTL.setVoltage(volts * distanceCorrection);

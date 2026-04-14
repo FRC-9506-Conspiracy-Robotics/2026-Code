@@ -148,7 +148,7 @@ public class PositionData {
             else {
                 frontPose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LimelightNames.limelight4AFront);
             }
-            if (frontPose.pose.getMeasureX().in(Meters) == 0 && frontPose.pose.getMeasureY().in(Meters) == 0) {
+            if (frontPose == null || frontPose.pose.getMeasureX().in(Meters) == 0 && frontPose.pose.getMeasureY().in(Meters) == 0) {
                 validTargets += -1;
                 frontVis = false;
             }
@@ -161,7 +161,7 @@ public class PositionData {
             else {
                 leftPose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LimelightNames.limelight3ALeft);
             }
-            if (leftPose.pose.getMeasureX().in(Meters) == 0 && leftPose.pose.getMeasureY().in(Meters) == 0) {
+            if (leftPose == null || leftPose.pose.getMeasureX().in(Meters) == 0 && leftPose.pose.getMeasureY().in(Meters) == 0) {
                 validTargets += -1;
                 leftVis = false;
             }
@@ -174,7 +174,7 @@ public class PositionData {
             else {
                 rightPose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LimelightNames.limelight3ARight);
             }
-            if (rightPose.pose.getMeasureX().in(Meters) == 0 && rightPose.pose.getMeasureY().in(Meters) == 0) {
+            if (rightPose == null || rightPose.pose.getMeasureX().in(Meters) == 0 && rightPose.pose.getMeasureY().in(Meters) == 0) {
                 validTargets += -1;
                 rightVis = false;
             }

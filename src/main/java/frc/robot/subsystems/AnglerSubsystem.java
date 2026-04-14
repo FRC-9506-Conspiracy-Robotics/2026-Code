@@ -18,6 +18,7 @@ public class AnglerSubsystem extends SubsystemBase {
 
   public static boolean outOfAllianceZone = false;
   public static boolean farFromHub = false;
+  public static boolean trenchSafety = false;
 
   public final TalonFX anglerMotor = new TalonFX(
     AnglerConstants.anglerMotorID, "Aux Can");
@@ -48,19 +49,28 @@ public class AnglerSubsystem extends SubsystemBase {
     double kP = 0.1;
     double signal = 0;
     Pose pose = positionData.getPose();
+    if (pose.x > 3.6 - (4.6 * Math.abs(pose.velX) * 0.15) && pose.x < 5.3 + (4.6 * Math.abs(pose.velX) * 0.15) || pose.x > 11 - (12 * Math.abs(pose.velX) * 0.15) && pose.x < 13 + (12 * Math.abs(pose.velX) * 0.15)) {
+      trenchSafety = true;
+    }
+    else {
+      trenchSafety = false;
+    }
     if (pose.x > 5.5) {
       outOfAllianceZone = true;
     }
     else if (pose.x < 5.2) {
       outOfAllianceZone = false;
     }
-    if (positionData.getDistance() > 4.1) {
+    if (positionData.getDistance() > 3.5) {
       farFromHub = true;
     }
-    else if (positionData.getDistance() < 3.9) {
+    else if (positionData.getDistance() < 3.3) {
       farFromHub = false;
     }
-    if (outOfAllianceZone) {
+    if (trenchSafety) {
+      signal = (0 - anglerMotor.getPosition().refresh().getValueAsDouble() * kP);
+    }
+    else if (outOfAllianceZone) {
       signal = (6 - anglerMotor.getPosition().refresh().getValueAsDouble()) * kP;
     }
     else if (farFromHub) {

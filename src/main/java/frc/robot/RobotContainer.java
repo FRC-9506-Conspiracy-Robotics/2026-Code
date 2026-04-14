@@ -22,7 +22,9 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.DriverConstants;
 import frc.robot.commands.AutonomousLock;
@@ -31,6 +33,8 @@ import frc.robot.commands.LockOn;
 import frc.robot.commands.LockPose;
 import frc.robot.subsystems.AnglerSubsystem;
 import frc.robot.subsystems.DrumShooterSubsystem;
+import frc.robot.subsystems.HubCounter;
+import frc.robot.subsystems.HubShiftUtil;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.PositionData;
 import frc.robot.subsystems.SwerveSubsystem;
@@ -75,6 +79,8 @@ public class RobotContainer {
 
   private final SendableChooser<Command> autoChooser;
 
+  private HubCounter hubCounter = new HubCounter();
+
   public final PositionData positionData = new PositionData(swerveDrive);
 
   private final IntakeSubsystem intake = new IntakeSubsystem();
@@ -118,6 +124,10 @@ public class RobotContainer {
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
     
+    RobotModeTriggers.autonomous().onTrue(Commands.runOnce(HubShiftUtil::initialize));
+    RobotModeTriggers.teleop().onTrue(Commands.runOnce(HubShiftUtil::initialize));
+    RobotModeTriggers.disabled().onTrue(Commands.runOnce(HubShiftUtil::initialize).ignoringDisable(true));
+    RobotModeTriggers.autonomous().onTrue(Commands.runOnce(hubCounter::initialize));
 
   }
 
