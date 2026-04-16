@@ -6,15 +6,18 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;import frc.robot.subsystems.DrumShooterSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import swervelib.SwerveDrive;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class LoadShooter extends Command {
   private DrumShooterSubsystem drumShooter;
   private IntakeSubsystem intake;
+  private SwerveDrive swerve;
   /** Creates a new LoadShooter. */
-  public LoadShooter(DrumShooterSubsystem drumShooter_, IntakeSubsystem intake_) {
+  public LoadShooter(DrumShooterSubsystem drumShooter_, IntakeSubsystem intake_, SwerveDrive swerve_) {
     this.drumShooter = drumShooter_;
     this.intake = intake_;
+    this.swerve = swerve_;
     addRequirements(this.drumShooter, this.intake);
     // Use addRequirements() here to declare subsystem dependencies.
   }
@@ -30,7 +33,7 @@ public class LoadShooter extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
+    this.swerve.lockPose();
   }
 
   // Called once the command ends or is interrupted.

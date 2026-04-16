@@ -6,17 +6,9 @@ package frc.robot;
 
 import java.io.File;
 
-import org.ironmaple.simulation.SimulatedArena;
-import org.ironmaple.simulation.drivesims.COTS;
-import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
-import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -27,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.DriverConstants;
+import frc.robot.commands.AutonomousLoadShooter;
 import frc.robot.commands.AutonomousLock;
 import frc.robot.commands.LoadShooter;
 import frc.robot.commands.LockOn;
@@ -85,39 +78,21 @@ public class RobotContainer {
 
   private final IntakeSubsystem intake = new IntakeSubsystem();
   private final DrumShooterSubsystem drumShooter = new DrumShooterSubsystem(positionData);
+  @SuppressWarnings("unused")
   private final AnglerSubsystem angler = new AnglerSubsystem(positionData);
 
-  private final LoadShooter loadShooter = new LoadShooter(drumShooter, intake);
+  private final LoadShooter loadShooter = new LoadShooter(drumShooter, intake, swerveDrive);
+  private final AutonomousLoadShooter autoLoad = new AutonomousLoadShooter(drumShooter, intake);
   private final LockOn lock = new LockOn();
   private final AutonomousLock autoLock = new AutonomousLock(drivebase, positionData);
   private final LockPose lockPose = new LockPose(swerveDrive);
 
-  private SwerveDriveSimulation swerveDriveSimulation;
-
   public RobotContainer() {
-
-    switch (Constants.currentMode) {
-      case SIM:
-        SimulatedArena.getInstance();
-        final DriveTrainSimulationConfig driveTrainSimulationConfig = DriveTrainSimulationConfig.Default()
-          .withGyro(COTS.ofPigeon2())
-          .withSwerveModule(COTS.ofMark4(
-            DCMotor.getKrakenX60(1), 
-            DCMotor.getKrakenX44(1), 
-              1.19, 
-              3));
-      
-        this.swerveDriveSimulation = new SwerveDriveSimulation(
-          driveTrainSimulationConfig, 
-          new Pose2d(3, 4, new Rotation2d()));
-        SimulatedArena.getInstance().addDriveTrainSimulation(swerveDriveSimulation);
-        
-    }
 
     NamedCommands.registerCommand("Deploy Intake", this.intake.toggleDeploy()); // uses intake
     NamedCommands.registerCommand("Lock On", this.autoLock);
     NamedCommands.registerCommand("Toggle Shooter", this.drumShooter.toggleShooter());
-    NamedCommands.registerCommand("Load Shooter", this.loadShooter);
+    NamedCommands.registerCommand("Load Shooter", this.autoLoad);
     
     configureBindings();
 
@@ -147,12 +122,12 @@ public class RobotContainer {
 
     mDriverController.x().onTrue(this.intake.toggleReload());
     mDriverController.y().onTrue(this.intake.toggleDeploy());
-    mDriverController.a().whileTrue(lockPose);
+    mDriverController.a().whileTrue(lockPose); // subsystems: swerve
     mDriverController.b().onTrue(this.drumShooter.toggleShooter());
     mDriverController.leftBumper().whileTrue(this.intake.unjamIntake());
-    mDriverController.leftTrigger().whileTrue(this.lock);
+    mDriverController.leftTrigger().whileTrue(this.lock); // subsystems: none
     mDriverController.rightBumper().whileTrue(this.drumShooter.unjamShooter());
-    mDriverController.rightTrigger().whileTrue(loadShooter);
+    mDriverController.rightTrigger().whileTrue(loadShooter); // subsystems: drum, swerve
 
     mDriverController.start().and(mDriverController.povRight()).whileTrue(this.drumShooter.sysIdQuasistatic(Direction.kForward));
     mDriverController.start().and(mDriverController.povLeft()).whileTrue(this.drumShooter.sysIdQuasistatic(Direction.kReverse));

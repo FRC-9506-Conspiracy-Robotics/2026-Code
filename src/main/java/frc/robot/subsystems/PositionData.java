@@ -106,6 +106,9 @@ public class PositionData {
         double dT = Utils.getCurrentTimeSeconds() - lastTimestamp;
         double derivativeError = (rotationError - lastError) / (Utils.getCurrentTimeSeconds() - lastTimestamp);
         accumulatedError += rotationError * kI * dT;
+        if (Math.abs(this.x) > 0.1 || Math.abs(this.y) > 0.1) {
+            accumulatedError = 0;
+        }
         double signal = rotationError * kP + derivativeError * kD + accumulatedError;
         if (signal > 1) {
             signal = 1;

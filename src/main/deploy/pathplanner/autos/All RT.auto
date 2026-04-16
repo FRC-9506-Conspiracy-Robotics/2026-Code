@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "LT to LB"
+                  "pathName": "RT to RT"
                 }
               },
               {
@@ -21,7 +21,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 0.1
+                        "waitTime": 0.5
                       }
                     },
                     {
@@ -33,7 +33,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 2.9
+                        "waitTime": 6.5
                       }
                     },
                     {
@@ -106,7 +106,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "LT to LB (2)"
+                  "pathName": "RT to RT (2)"
                 }
               },
               {
@@ -116,7 +116,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 4.5
+                        "waitTime": 7.0
                       }
                     },
                     {

@@ -24,7 +24,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.DrumShooterConstants;
 import frc.robot.Constants.HopperConstants;
-import frc.robot.subsystems.PositionData.Pose;
 
 public class DrumShooterSubsystem extends SubsystemBase {
 
@@ -36,7 +35,7 @@ public class DrumShooterSubsystem extends SubsystemBase {
 
   public boolean unjamming = false;
   public boolean loading = false;
-  public boolean shooting = false;
+  public static boolean shooting = false;
   public double timer = 0;
   
 
@@ -145,7 +144,7 @@ public class DrumShooterSubsystem extends SubsystemBase {
   }
 
   public Command toggleShooter() {
-    return runOnce( () -> this.shooting = !this.shooting );
+    return runOnce( () -> DrumShooterSubsystem.shooting = !DrumShooterSubsystem.shooting );
   }
 
   public void driveMotor(Voltage volts) {

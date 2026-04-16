@@ -33,7 +33,7 @@ public class IntakeSubsystem extends SubsystemBase {
   public final RelativeEncoder deployEncoder = deployLeaderMotor.getEncoder();
   public final RelativeEncoder followerEncoder = deployFollowerMotor.getEncoder();
 
-  public static boolean reloading = false;
+  public static boolean stopReloading = false;
   public static boolean outOfZone = false;
 
   final DoublePublisher deployInfo;
@@ -81,7 +81,7 @@ public class IntakeSubsystem extends SubsystemBase {
     NetworkTableInstance inst = NetworkTableInstance.getDefault();
     NetworkTable table = inst.getTable("datatable");
     this.deployInfo = table.getDoubleTopic("encoder-info/deploy-motor").publish();
-    this.isReloading = table.getBooleanTopic("status/reloading").publish();
+    this.isReloading = table.getBooleanTopic("status/reload-stopped").publish();
     this.isDeployed = table.getBooleanTopic("status/deployed").publish();
   }
 
@@ -107,7 +107,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public Command toggleReload() {
     return runOnce(
-      () -> IntakeSubsystem.reloading = !IntakeSubsystem.reloading
+      () -> IntakeSubsystem.stopReloading = !IntakeSubsystem.stopReloading
     );
   }
 
@@ -125,16 +125,8 @@ public class IntakeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     this.deployInfo.set(followerEncoder.getPosition());
-    this.isReloading.set(IntakeSubsystem.reloading);
+    this.isReloading.set(IntakeSubsystem.stopReloading);
     this.isDeployed.set(this.desiredPosition);
-
-    if (IntakeSubsystem.reloading && !this.unjamming) {
-      intakeMotor.set(-0.75);
-    }
-    
-    else if (!this.unjamming) {
-      intakeMotor.set(0);
-    }
 
     if (desiredPosition == DEPLOYED && this.deployEncoder.getPosition() > -9) {
       deployLeaderMotor.set(-this.deploySpeed);
@@ -144,7 +136,7 @@ public class IntakeSubsystem extends SubsystemBase {
       deployLeaderMotor.set(this.deploySpeed);
       intakeMotor.set(0);
     }
-    else if (desiredPosition == DEPLOYED && !this.unjamming) {
+    else if (desiredPosition == DEPLOYED && !this.unjamming && !IntakeSubsystem.stopReloading) {
       deployLeaderMotor.set(0);
       intakeMotor.set(-0.75);
     }
