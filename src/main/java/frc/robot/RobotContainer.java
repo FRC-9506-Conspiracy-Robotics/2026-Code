@@ -123,7 +123,7 @@ public class RobotContainer {
     mDriverController.x().onTrue(this.intake.toggleReload());
     mDriverController.y().onTrue(this.intake.toggleDeploy());
     mDriverController.a().whileTrue(lockPose); // subsystems: swerve
-    mDriverController.b().onTrue(this.drumShooter.toggleShooter());
+    mDriverController.b().onTrue(this.drumShooter.toggleShooter()); // most likely unused
     mDriverController.leftBumper().whileTrue(this.intake.unjamIntake());
     mDriverController.leftTrigger().whileTrue(this.lock); // subsystems: none
     mDriverController.rightBumper().whileTrue(this.drumShooter.unjamShooter());

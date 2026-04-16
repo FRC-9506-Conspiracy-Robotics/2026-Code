@@ -98,7 +98,7 @@ public class IntakeSubsystem extends SubsystemBase {
   
   public Command unjamIntake() {
     return startEnd(
-      () -> {intakeMotor.set(0.75);
+      () -> {intakeMotor.set(0.85);
             this.unjamming = true;},
       () -> {intakeMotor.set(0);
             this.unjamming = false;}
@@ -138,7 +138,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
     else if (desiredPosition == DEPLOYED && !this.unjamming && !IntakeSubsystem.stopReloading) {
       deployLeaderMotor.set(0);
-      intakeMotor.set(-0.75);
+      intakeMotor.set(-0.85);
     }
     else if (!this.unjamming) {
       deployLeaderMotor.set(0);

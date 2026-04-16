@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.LimelightNames;
+import frc.robot.subsystems.DrumShooterSubsystem;
 import frc.robot.subsystems.PositionData;
 import frc.robot.subsystems.VirtualSubsystem;
 import swervelib.SwerveDrive;
@@ -96,6 +97,7 @@ public class Robot extends LoggedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    DrumShooterSubsystem.shooting = false;
   }
 
   @Override
