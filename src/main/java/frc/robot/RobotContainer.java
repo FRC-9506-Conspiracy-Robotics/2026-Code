@@ -19,7 +19,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.DriverConstants;
-import frc.robot.commands.AutonomousLoadShooter;
 import frc.robot.commands.AutonomousLock;
 import frc.robot.commands.LoadShooter;
 import frc.robot.commands.LockOn;
@@ -82,17 +81,16 @@ public class RobotContainer {
   private final AnglerSubsystem angler = new AnglerSubsystem(positionData);
 
   private final LoadShooter loadShooter = new LoadShooter(drumShooter, intake, swerveDrive);
-  private final AutonomousLoadShooter autoLoad = new AutonomousLoadShooter(drumShooter, intake);
+  private final LoadShooter autoLoadShooter = new LoadShooter(drumShooter, intake, swerveDrive);
   private final LockOn lock = new LockOn();
   private final AutonomousLock autoLock = new AutonomousLock(drivebase, positionData);
   private final LockPose lockPose = new LockPose(swerveDrive);
 
   public RobotContainer() {
-
-    NamedCommands.registerCommand("Deploy Intake", this.intake.toggleDeploy()); // uses intake
+    NamedCommands.registerCommand("Deploy Intake", this.intake.toggleIntake());
     NamedCommands.registerCommand("Lock On", this.autoLock);
     NamedCommands.registerCommand("Toggle Shooter", this.drumShooter.toggleShooter());
-    NamedCommands.registerCommand("Load Shooter", this.autoLoad);
+    NamedCommands.registerCommand("Load Shooter", this.autoLoadShooter);
     
     configureBindings();
 
@@ -103,25 +101,21 @@ public class RobotContainer {
     RobotModeTriggers.teleop().onTrue(Commands.runOnce(HubShiftUtil::initialize));
     RobotModeTriggers.disabled().onTrue(Commands.runOnce(HubShiftUtil::initialize).ignoringDisable(true));
     RobotModeTriggers.autonomous().onTrue(Commands.runOnce(hubCounter::initialize));
-
   }
 
   private void configureBindings() {
-
     Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
     Command driveFieldOrientedAngularVelocityKeyboard = drivebase.driveFieldOriented(driveAngularVelocity);
-      if (RobotBase.isSimulation()) {
-          drivebase.setDefaultCommand(driveFieldOrientedAngularVelocityKeyboard);
-      } else {
-          drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
-      }
+    if (RobotBase.isSimulation()) {
+        drivebase.setDefaultCommand(driveFieldOrientedAngularVelocityKeyboard);
+    } else {
+        drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+    }
 
     mDriverController.leftStick().onTrue(drivebase.zero());
 
-    // this.turret.setDefaultCommand(autoTrackCommand);
-
     mDriverController.x().onTrue(this.intake.toggleReload());
-    mDriverController.y().onTrue(this.intake.toggleDeploy());
+    mDriverController.y().onTrue(this.intake.toggleIntake());
     mDriverController.a().whileTrue(lockPose); // subsystems: swerve
     mDriverController.b().onTrue(this.drumShooter.toggleShooter()); // most likely unused
     mDriverController.leftBumper().whileTrue(this.intake.unjamIntake());
@@ -133,15 +127,9 @@ public class RobotContainer {
     mDriverController.start().and(mDriverController.povLeft()).whileTrue(this.drumShooter.sysIdQuasistatic(Direction.kReverse));
     mDriverController.back().and(mDriverController.povRight()).whileTrue(this.drumShooter.sysIdDynamic(Direction.kForward));
     mDriverController.back().and(mDriverController.povLeft()).whileTrue(this.drumShooter.sysIdDynamic(Direction.kReverse));
-
-    
-
   }
-
 
   public Command getAutonomousCommand() {
     return autoChooser.getSelected();
   }
-
-
 }

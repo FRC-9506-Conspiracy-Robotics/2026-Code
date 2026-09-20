@@ -37,20 +37,22 @@ public class DrumShooterSubsystem extends SubsystemBase {
   public boolean loading = false;
   public static boolean shooting = false;
   public double timer = 0;
-  
 
   // Motor configuration
+  // TL = Top Left, TR = Top Right, BL = Bottom Left, BR = Bottom Right
   public final TalonFX shooterMotorLeadTL = new TalonFX(
     DrumShooterConstants.shooterMotorLeadTL, "Aux Can");
-  public final TalonFX shooterMotorFollowerBL = new TalonFX(
-    DrumShooterConstants.shooterMotorFollowerBL, "Aux Can");
   public final TalonFX shooterMotorFollowerTR = new TalonFX(
     DrumShooterConstants.shooterMotorFollowerTR, "Aux Can");
+
+  public final TalonFX shooterMotorFollowerBL = new TalonFX(
+    DrumShooterConstants.shooterMotorFollowerBL, "Aux Can");
   public final TalonFX shooterMotorFollowerBR = new TalonFX(
     DrumShooterConstants.shooterMotorFollowerBR, "Aux Can");
 
   public final TalonFX centerHandoffMotor = new TalonFX(
     DrumShooterConstants.centerHandoffMotor, "Aux Can");
+
   public final TalonFX rampHandoffMotor = new TalonFX(
     DrumShooterConstants.rampHandoffMotor, "Aux Can");
 
@@ -59,7 +61,6 @@ public class DrumShooterSubsystem extends SubsystemBase {
 
   private PositionData positionData;
 
-  /** Creates a new DrumShooter. */
   public DrumShooterSubsystem(PositionData positionData_) {
     this.positionData = positionData_;
 
@@ -73,7 +74,7 @@ public class DrumShooterSubsystem extends SubsystemBase {
         new CurrentLimitsConfigs()
           .withStatorCurrentLimit(DrumShooterConstants.shooterCurrentLimit)
           .withStatorCurrentLimitEnable(true)
-      );
+    );
 
     shooterMotorLeadTL.getConfigurator().apply(shooterConfig);
 
@@ -96,7 +97,7 @@ public class DrumShooterSubsystem extends SubsystemBase {
         new CurrentLimitsConfigs()
           .withStatorCurrentLimit(DrumShooterConstants.centerHandoffCurrentLimit)
           .withStatorCurrentLimitEnable(true)
-      );
+    );
 
     centerHandoffMotor.getConfigurator().apply(centerHandoffConfig);
 
@@ -127,31 +128,33 @@ public class DrumShooterSubsystem extends SubsystemBase {
       );
 
     hopperMotor.getConfigurator().apply(hopperConfig);
-
   }
 
   public Command lockOn() {
     return startEnd(
-      () -> {RobotContainer.lockOn = true;
-            PositionData.accumulatedError = 0;}, 
+      () -> {
+        RobotContainer.lockOn = true;
+        PositionData.accumulatedError = 0;
+      }, 
       () -> RobotContainer.lockOn = false);
   }
 
   public Command unjamShooter() {
     return startEnd(
       () -> this.unjamming = true,
-      () -> this.unjamming = false);
+      () -> this.unjamming = false
+    );
   }
 
   public Command toggleShooter() {
-    return runOnce( () -> DrumShooterSubsystem.shooting = !DrumShooterSubsystem.shooting );
+    return runOnce( 
+      () -> DrumShooterSubsystem.shooting = !DrumShooterSubsystem.shooting 
+    );
   }
 
-  public void driveMotor(Voltage volts) {
+  public void driveShooter(Voltage volts) {
     shooterMotorLeadTL.setVoltage(volts.in(Volts));
   }
-
-
 
   public void logMotor(SysIdRoutineLog log) {
     log.motor("shoooter-motor")
@@ -160,19 +163,14 @@ public class DrumShooterSubsystem extends SubsystemBase {
       .angularVelocity(shooterMotorLeadTL.getVelocity().getValue());
   }
 
-  private final SysIdRoutine sysIdRoutine =
-      new SysIdRoutine(
-          // Empty config defaults to 1 volt/second ramp rate and 7 volt step voltage.
-          new SysIdRoutine.Config(),
-          new SysIdRoutine.Mechanism(
-              // Tell SysId how to plumb the driving voltage to the motor(s).
-              this::driveMotor,
-              // Tell SysId how to record a frame of data for each motor on the mechanism being
-              // characterized.
-              this::logMotor,
-              // Tell SysId to make generated commands require this subsystem, suffix test state in
-              // WPILog with this subsystem's name ("shooter")
-              this));
+  private final SysIdRoutine sysIdRoutine = new SysIdRoutine(
+    new SysIdRoutine.Config(), // Empty config defaults to 1 volt/second ramp rate and 7 volt step voltage.
+    new SysIdRoutine.Mechanism(
+      this::driveShooter, // Tell SysId how to plumb the driving voltage to the motor(s).
+      this::logMotor, // Tell SysId how to record a frame of data for each motor on the mechanism being characterized.
+      this // Tell SysId to make generated commands require this subsystem, suffix test state in WPILog with this subsystem's name ("shooter")
+    )
+  );
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
     return sysIdRoutine.quasistatic(direction);
@@ -183,6 +181,7 @@ public class DrumShooterSubsystem extends SubsystemBase {
   }
 
   @Override
+  // This method will be called once per scheduler run
   public void periodic() {
     double angle = 80 * Math.PI / 180;
     if (AnglerSubsystem.outOfAllianceZone) {
@@ -220,11 +219,6 @@ public class DrumShooterSubsystem extends SubsystemBase {
       distanceCorrection = 1.5;
     }
 
-    double angleCorrection = 1;
-    if (AnglerSubsystem.farFromHub) {
-      angleCorrection = 0.85;
-    }
-
     this.shooterMotorLeadTL.setVoltage(volts * distanceCorrection);
 
     if (unjamming) {
@@ -243,6 +237,5 @@ public class DrumShooterSubsystem extends SubsystemBase {
       this.hopperMotor.set(0);
     }
 
-    // This method will be called once per scheduler run
   }
 }

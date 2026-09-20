@@ -25,7 +25,6 @@ public class AnglerSubsystem extends SubsystemBase {
   
   private PositionData positionData;
 
-  /** Creates a new AnglerSubsystem. */
   public AnglerSubsystem(PositionData positionData_) {
     this.positionData = positionData_;
 
@@ -45,6 +44,7 @@ public class AnglerSubsystem extends SubsystemBase {
   }
 
   @Override
+  // This method will be called once per scheduler run
   public void periodic() {
     double kP = 0.1;
     double signal = 0;
@@ -86,6 +86,5 @@ public class AnglerSubsystem extends SubsystemBase {
       signal = -1;
     }
     anglerMotor.set(signal);
-    // This method will be called once per scheduler run
   }
 }

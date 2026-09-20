@@ -22,7 +22,6 @@ import swervelib.SwerveDrive;
 
 /** Add your docs here. */
 public class PositionData {
-
     final DoublePublisher pidgeonYaw;
     final DoublePublisher allianceFlip;
     final DoublePublisher calculatedAngle;
@@ -126,7 +125,6 @@ public class PositionData {
     }
 
     public void updatePose() {
-        
         pidgeonYaw.set(this.swerve.getGyroRotation3d().getZ() * (180/Math.PI));
 
         ChassisSpeeds velocity = this.swerve.getFieldVelocity();
@@ -225,5 +223,4 @@ public class PositionData {
         p.velY = this.velY;
         return p;
     }
-
 }

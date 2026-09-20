@@ -6,7 +6,6 @@ import com.ctre.phoenix6.Utils;
 import edu.wpi.first.math.util.Units;
 
 public final class Constants {
-
     public static final Mode realMode = Mode.REAL;
     public static final Mode currentMode = Utils.isSimulation() ? Mode.SIM : realMode;
 
@@ -33,17 +32,27 @@ public final class Constants {
     // everything below will be for drum shooter
 
     public static class IntakeConstants {
+        public enum IntakeState {
+            DEPLOYED,
+            STOWED
+        };
+        
         public static final int deployLeaderID = 13;
         public static final int deployFollowerID = 14;
         public static final int intakeID = 15;
         public static final int intakeFollowerID = 23;
         
+        public static final double intakeSpeed = -0.85;
 
         public static final int deployGearRatio = 15;
         public static final int intakeGearRatio = 2;
 
         public static final int deployCurrentLimit = 40;
         public static final int intakeCurrentLimit = 25;
+
+        public static final double deployPosition = -8.5;
+        public static final double stowedPosition = -0.5;
+        public static final double deployTolerance = 0.5;
     }
 
     public static class DrumShooterConstants {
@@ -74,43 +83,6 @@ public final class Constants {
 
         public static final int anglerCurrentLimit = 25;
     }
-
-    // all motor IDs below useless!!!!
-
-    // public static class TurretConstants {
-    //     public static final int neckMotorID = 17; 
-    //     public static final int anglerMotorID = 18;
-    //     public static final int shooterLeadID = 19;
-    //     public static final int shooterFollowerID = 20;
-    //     public static final int shooterHandoffID = 21;
-
-    //     public static final double neckGearRatio = 37.5;
-    //     public static final double anglerGearRatio = 66.6667;
-
-    //     public static final int neckCurrentLimit = 40;
-    //     public static final int anglerCurrentLimit = 40;
-    //     public static final int handoffCurrentLimit = 40;
-
-    //     public static final double circumferenceOfWheel = 0.319186;
-
-    //     public static final double shooterkV = 0.12079;
-    //     public static final double shooterkA = 0;
-    //     public static final double shooterkS = 0.24189;
-    // }
-
-    // public static class SpindexConstants {
-    //     public static final int spindexMotorID = 16;
-
-    //     public static final int spindexCurrentLimit = 40;
-    // }
-
-    // public static class ClimberConstants {
-    //     public static final int climberMotorID = 22;
-
-    //     public static final int climberCurrentLimit = 40;
-
-    //     public static final int climberGearRatio = 36;
-    // }
 
     public static class LimelightNames {
         public static final String limelight4AFront = "limelight-afouri";

@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.IntakeConstants;
-import frc.robot.commands.DeployIntake;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -33,19 +32,16 @@ public class IntakeSubsystem extends SubsystemBase {
   public final RelativeEncoder deployEncoder = deployLeaderMotor.getEncoder();
   public final RelativeEncoder followerEncoder = deployFollowerMotor.getEncoder();
 
-  public static boolean stopReloading = false;
-  public static boolean outOfZone = false;
 
   final DoublePublisher deployInfo;
   final BooleanPublisher isReloading;
   final BooleanPublisher isDeployed;
 
-  public boolean desiredPosition = false;
-  public boolean DEPLOYED = true;
-  public boolean STOWED =  false;
+  public IntakeConstants.IntakeState currentState = IntakeConstants.IntakeState.STOWED;
+  public IntakeConstants.IntakeState intakeState = IntakeConstants.IntakeState.STOWED;
   public double deploySpeed = 0.25;
   public boolean unjamming = false;
-  public static boolean deploying = false;
+  public static boolean reloading = false;
 
   public IntakeSubsystem() {
     TalonFXConfiguration intakeConfig = new TalonFXConfiguration();
@@ -59,7 +55,6 @@ public class IntakeSubsystem extends SubsystemBase {
           .withStatorCurrentLimit(IntakeConstants.intakeCurrentLimit)
           .withStatorCurrentLimitEnable(true)
       );
-
     intakeMotor.getConfigurator().apply(intakeConfig);
     intakeFollowerMotor.getConfigurator().apply(intakeConfig);
     intakeFollowerMotor.setControl(new Follower(IntakeConstants.intakeID, MotorAlignmentValue.Opposed));
@@ -68,14 +63,12 @@ public class IntakeSubsystem extends SubsystemBase {
     deployLeaderConfig
       .idleMode(IdleMode.kCoast)
       .smartCurrentLimit(IntakeConstants.deployCurrentLimit);
-
     deployLeaderMotor.configure(deployLeaderConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
 
     SparkMaxConfig deployFollowerConfig = new SparkMaxConfig();
     deployFollowerConfig
       .idleMode(IdleMode.kCoast)
       .follow(deployLeaderMotor, true);
-
     deployFollowerMotor.configure(deployFollowerConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
 
     NetworkTableInstance inst = NetworkTableInstance.getDefault();
@@ -85,68 +78,69 @@ public class IntakeSubsystem extends SubsystemBase {
     this.isDeployed = table.getBooleanTopic("status/deployed").publish();
   }
 
-  public Command deployIntake() { // Deploys AND retracts intake
-    return new DeployIntake(this);
+  public Command toggleIntake() {
+    return runOnce(
+      () -> {
+        if (this.currentState == IntakeConstants.IntakeState.DEPLOYED) {
+          this.currentState = IntakeConstants.IntakeState.STOWED;
+        } else {
+          this.currentState = IntakeConstants.IntakeState.DEPLOYED;
+        }
+        this.deploySpeed = 0.35;
+        this.unjamming = false;}
+    );
   }
 
   public Command startIntakeCommand() {
     return startEnd(
       () -> intakeMotor.set(-1),
       () -> intakeMotor.set(0)
-      );
+    );
   }
-  
+
   public Command unjamIntake() {
     return startEnd(
-      () -> {intakeMotor.set(0.85);
-            this.unjamming = true;},
-      () -> {intakeMotor.set(0);
-            this.unjamming = false;}
-      );
+      () -> {
+        intakeMotor.set(-IntakeConstants.intakeSpeed);
+        this.unjamming = true;
+      },
+      () -> {
+        intakeMotor.set(0);
+        this.unjamming = false;
+      }
+    );
   }
 
   public Command toggleReload() {
     return runOnce(
-      () -> IntakeSubsystem.stopReloading = !IntakeSubsystem.stopReloading
+      () -> IntakeSubsystem.reloading = !IntakeSubsystem.reloading
     );
   }
-
-  public Command toggleDeploy() {
-    return runOnce(
-      () -> {this.desiredPosition = !this.desiredPosition;
-            this.deploySpeed = 0.35;
-            this.unjamming = false;}
-
-    );
-  }
-
-  
 
   @Override
   public void periodic() {
     this.deployInfo.set(followerEncoder.getPosition());
-    this.isReloading.set(IntakeSubsystem.stopReloading);
-    this.isDeployed.set(this.desiredPosition);
+    this.isReloading.set(IntakeSubsystem.reloading);
+    this.isDeployed.set(this.intakeState == IntakeConstants.IntakeState.DEPLOYED);
 
-    if (desiredPosition == DEPLOYED && this.deployEncoder.getPosition() > -9) {
+    if (currentState == IntakeConstants.IntakeState.DEPLOYED && this.deployEncoder.getPosition() > IntakeConstants.deployPosition - IntakeConstants.deployTolerance) { // intake deploying not fully deployed
       deployLeaderMotor.set(-this.deploySpeed);
       intakeMotor.set(0);
     }
-    else if (desiredPosition == STOWED && this.deployEncoder.getPosition() < -1) {
+    else if (currentState == IntakeConstants.IntakeState.STOWED && this.deployEncoder.getPosition() < IntakeConstants.stowedPosition - IntakeConstants.deployTolerance) { // intake stowing not fully stowed
       deployLeaderMotor.set(this.deploySpeed);
       intakeMotor.set(0);
     }
-    else if (desiredPosition == DEPLOYED && !this.unjamming && !IntakeSubsystem.stopReloading) {
+    else if (currentState == IntakeConstants.IntakeState.DEPLOYED && !this.unjamming && !IntakeSubsystem.reloading) { // intake deployed and running
       deployLeaderMotor.set(0);
-      intakeMotor.set(-0.85);
+      intakeMotor.set(IntakeConstants.intakeSpeed);
     }
-    else if (!this.unjamming) {
+    else if (!this.unjamming) { // intake unjaming
       deployLeaderMotor.set(0);
       intakeMotor.set(0);
     }
-    else {
+    else { // intake not running
       deployLeaderMotor.set(0);
     }
-
   }
 }

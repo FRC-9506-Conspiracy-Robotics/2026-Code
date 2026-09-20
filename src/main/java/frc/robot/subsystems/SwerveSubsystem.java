@@ -20,7 +20,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -35,7 +34,6 @@ import swervelib.math.SwerveMath;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
-
 
 public class SwerveSubsystem extends SubsystemBase {
     //create swerve object
@@ -70,16 +68,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public SwerveDrive getSwerveDrive() {
         return swerveDrive;
-    }
-
-    @Override
-    public void periodic() {
-
-    }
-
-    @Override
-    public void simulationPeriodic() {
-
     }
 
     //loads auto config from pathplanner
@@ -142,7 +130,6 @@ public class SwerveSubsystem extends SubsystemBase {
             edu.wpi.first.units.Units.MetersPerSecond.of(0)
         );
     }
-
     
     //characterizes the drive motors using sysid
     public Command sysIdDriveMotorCommand() {
@@ -181,20 +168,12 @@ public class SwerveSubsystem extends SubsystemBase {
         swerveDrive.replaceSwerveModuleFeedforward(new SimpleMotorFeedforward(kS, kV, kA));
     }
 
-    public Pose2d getPose() {
-        return swerveDrive.getPose();
-    }
-
     public Rotation2d getHeading() {
-        return getPose().getRotation();
+        return swerveDrive.getPose().getRotation();
     }
 
     public void resetOdometry(Pose2d intialHolonomicPose) {
         swerveDrive.resetOdometry(intialHolonomicPose);
-    }
-
-    public SwerveDriveKinematics getKinematics() {
-        return swerveDrive.kinematics;
     }
 
     public ChassisSpeeds getTargetSpeeds(double xInput, double yInput, Rotation2d angle) {
@@ -206,10 +185,6 @@ public class SwerveSubsystem extends SubsystemBase {
             getHeading().getRadians(), 
             SwerveConstants.maxDriveSpeed
         );
-    }
-
-    public void setChassisSpeeds(ChassisSpeeds chassisSpeeds) {
-        swerveDrive.setChassisSpeeds(chassisSpeeds);
     }
 
     public void drive(ChassisSpeeds velocity) {
@@ -233,32 +208,29 @@ public class SwerveSubsystem extends SubsystemBase {
         );
     }
 
-    public void lock() {
-        swerveDrive.lockPose();
-    }
-
-    public void zeroGyro() {
-        swerveDrive.zeroGyro();
-    }
-
     public Command zero() {
-        return runOnce(() -> zeroGyro());
+        return runOnce(() -> swerveDrive.zeroGyro());
     }
 
     //moves robot based on translation and angle
     public Command driveCommand(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier angularRotationX) {
         return run(() -> {
             swerveDrive.drive(SwerveMath.scaleTranslation(new Translation2d(
-                translationX.getAsDouble() * swerveDrive.getMaximumChassisAngularVelocity(),
-                translationY.getAsDouble() * swerveDrive.getMaximumChassisAngularVelocity()), 0.8
+                    translationX.getAsDouble() * swerveDrive.getMaximumChassisAngularVelocity(),
+                    translationY.getAsDouble() * swerveDrive.getMaximumChassisAngularVelocity()), 0.8
                 ),
-                Math.pow(angularRotationX.getAsDouble(), 3) * swerveDrive.getMaximumChassisAngularVelocity(), true, false
+                Math.pow(angularRotationX.getAsDouble(), 3) * swerveDrive.getMaximumChassisAngularVelocity(), 
+                true, false
             );
         });
     }
 
     //drives a certain distance and stops using pose
     public Command driveToDistanceCommand(double distanceInMeters, double speedInMetersPerSecond) {
-        return run(() -> drive(new ChassisSpeeds(speedInMetersPerSecond, 0, 0))).until(() -> swerveDrive.getPose().getTranslation().getDistance(new Translation2d(0, 0)) > distanceInMeters);
+        return run(() -> drive(
+                new ChassisSpeeds(speedInMetersPerSecond, 0, 0)
+            )
+        )
+        .until(() -> swerveDrive.getPose().getTranslation().getDistance(new Translation2d(0, 0)) > distanceInMeters);
     }
-}    
+}

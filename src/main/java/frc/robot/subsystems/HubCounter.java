@@ -21,7 +21,6 @@ import frc.robot.subsystems.HubShiftUtil.ShiftInfo;
 import java.util.Optional;
 
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class HubCounter extends VirtualSubsystem {
 

@@ -4,36 +4,40 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.Command;import frc.robot.subsystems.DrumShooterSubsystem;
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.DrumShooterSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import swervelib.SwerveDrive;
 
-/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
+import frc.robot.Constants.IntakeConstants;
+
+// You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands
 public class LoadShooter extends Command {
   private DrumShooterSubsystem drumShooter;
   private IntakeSubsystem intake;
   private SwerveDrive swerve;
-  /** Creates a new LoadShooter. */
   public LoadShooter(DrumShooterSubsystem drumShooter_, IntakeSubsystem intake_, SwerveDrive swerve_) {
     this.drumShooter = drumShooter_;
     this.intake = intake_;
     this.swerve = swerve_;
-    addRequirements(this.drumShooter, this.intake);
     // Use addRequirements() here to declare subsystem dependencies.
+    addRequirements(this.drumShooter, this.intake);
   }
 
-// Called when the command is initially scheduled.
+  // Called when the command is initially scheduled.
   @Override
   public void initialize() {
     this.drumShooter.loading = true;
     this.intake.deploySpeed = 0.125;
-    this.intake.desiredPosition = this.intake.STOWED;
+    this.intake.currentState = IntakeConstants.IntakeState.STOWED;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    this.swerve.lockPose();
+    if (this.swerve != null) {
+      this.swerve.lockPose();
+    }
   }
 
   // Called once the command ends or is interrupted.
@@ -41,7 +45,7 @@ public class LoadShooter extends Command {
   public void end(boolean interrupted) {
     this.drumShooter.loading = false;
     this.intake.deploySpeed = 0.25;
-    this.intake.desiredPosition = this.intake.DEPLOYED;
+    this.intake.currentState = IntakeConstants.IntakeState.DEPLOYED;
   }
 
   // Returns true when the command should end.
