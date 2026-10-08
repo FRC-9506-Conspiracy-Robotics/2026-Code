@@ -120,7 +120,7 @@ public class RobotContainer {
 
     // this.turret.setDefaultCommand(autoTrackCommand);
 
-    mDriverController.x().onTrue(this.intake.toggleReload());
+    mDriverController.x().onTrue(this.intake.startIntakeCommand());
     mDriverController.y().onTrue(this.intake.toggleDeploy());
     mDriverController.a().whileTrue(lockPose); // subsystems: swerve
     mDriverController.b().onTrue(this.drumShooter.toggleShooter()); // most likely unused

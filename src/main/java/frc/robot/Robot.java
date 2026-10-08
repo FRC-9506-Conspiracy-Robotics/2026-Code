@@ -5,10 +5,9 @@
 package frc.robot;
 
 import org.ironmaple.simulation.SimulatedArena;
-import org.littletonrobotics.junction.LoggedRobot;
-import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -18,7 +17,7 @@ import frc.robot.subsystems.PositionData;
 import frc.robot.subsystems.VirtualSubsystem;
 import swervelib.SwerveDrive;
 
-public class Robot extends LoggedRobot {
+public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
   private final PositionData positionData;
   private final SwerveDrive swerveDrive;
@@ -29,8 +28,6 @@ public class Robot extends LoggedRobot {
     m_robotContainer = new RobotContainer();
     this.positionData = m_robotContainer.positionData;
     this.swerveDrive = m_robotContainer.swerveDrive;
-
-    Logger.start();
   }
 
   @Override

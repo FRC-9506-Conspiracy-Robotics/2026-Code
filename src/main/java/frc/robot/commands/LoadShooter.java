@@ -26,7 +26,7 @@ public class LoadShooter extends Command {
   @Override
   public void initialize() {
     this.drumShooter.loading = true;
-    this.intake.deploySpeed = 0.125;
+    this.intake.deploySpeed = 0.2;
     this.intake.desiredPosition = this.intake.STOWED;
   }
 
@@ -40,7 +40,7 @@ public class LoadShooter extends Command {
   @Override
   public void end(boolean interrupted) {
     this.drumShooter.loading = false;
-    this.intake.deploySpeed = 0.25;
+    this.intake.deploySpeed = 0.3;
     this.intake.desiredPosition = this.intake.DEPLOYED;
   }
 

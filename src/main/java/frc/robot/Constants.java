@@ -33,12 +33,12 @@ public final class Constants {
     // everything below will be for drum shooter
 
     public static class IntakeConstants {
-        public static final int deployLeaderID = 13;
-        public static final int deployFollowerID = 14;
+        public static final int deployLeaderID = 25;
+        public static final int deployFollowerID = 14; 
         public static final int intakeID = 15;
         public static final int intakeFollowerID = 23;
         
-
+ 
         public static final int deployGearRatio = 15;
         public static final int intakeGearRatio = 2;
 

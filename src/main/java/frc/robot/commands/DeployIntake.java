@@ -3,6 +3,8 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.commands;
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.IntakeSubsystem;
 
@@ -49,13 +51,13 @@ public class DeployIntake extends Command {
   @Override
   public boolean isFinished() {
     //Numbers will be changed
-    double deployPosition = -8.5;
-    double stowedPosition = -0.5;
+    double deployPosition = -8;//-8.5
+    double stowedPosition = -0.5;//-.5
 
     if (this.intake.desiredPosition == this.intake.DEPLOYED) {
-      return this.intake.deployEncoder.getPosition() < deployPosition;
+      return this.intake.deployLeaderMotor.getPosition().getValueAsDouble() < deployPosition;
     } else {  // our desiredPosition == this.intake.STOWED
-      return this.intake.deployEncoder.getPosition() > stowedPosition;
+      return this.intake.deployLeaderMotor.getPosition().getValueAsDouble() > stowedPosition;
     }
   }
 }

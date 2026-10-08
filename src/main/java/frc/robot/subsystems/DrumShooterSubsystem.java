@@ -28,9 +28,10 @@ import frc.robot.Constants.HopperConstants;
 public class DrumShooterSubsystem extends SubsystemBase {
 
   private double shooterTuning = 1;
-  private double centerSpeed = -0.45;
-  private double rampSpeed = 0.75;
-  private double hopperSpeed = 0.75;
+  private double centerSpeed = -0.85;
+  private double rampSpeed = 0.85;
+  private double hopperSpeed = 0.85;
+
   private double handoffDelay = 1.5;
 
   public boolean unjamming = false;
